@@ -73,7 +73,8 @@ public class ExpenseAppManager {
     public enum Options {
         EXIT(0,"Wyjście"),
         NEWENTRY(1, "Wprowadź nową transakcję"),
-        DISPLAYAVERAGEEXPENSES(2, "Wyświetl dotychczasowe średnie wydatki/kategorie");
+        DISPLAYAVERAGEEXPENSES(2, "Wyświetl dotychczasowe średnie wydatki/kategorie"),
+        ADDUSER(3,"Dodaj nowego użytkownika");
         private final int value;
         private final String description;
 

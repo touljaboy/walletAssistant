@@ -1,10 +1,11 @@
 package pl.touljaboy.model;
 
+import pl.touljaboy.io.CSVConvertible;
+
 import java.util.ArrayList;
-import java.util.Date;
 
 //The class is used to represent single expenses and to store an ArrayList of those expenses.
-public class Expense {
+public class Expense implements CSVConvertible {
     /*
     I believe that expenses arrayList will be useful in the future development. I make it public static, so that
     every class in the program can access it for the time being. I might find a better way in future development.
@@ -12,12 +13,15 @@ public class Expense {
     public static ArrayList<Expense> expenses = new ArrayList<>();
     private double value;
     private ExpenseType expenseType;
-    private Date date;
+    private String date;
 
-    public Expense(double value, ExpenseType expenseType, Date date) {
+    public Expense(double value, ExpenseType expenseType, String date) {
         this.value = value;
         this.expenseType = expenseType;
         this.date = date;
+    }
+    public Expense() {
+
     }
 
     public double getValue() {
@@ -36,11 +40,26 @@ public class Expense {
         this.expenseType = expenseType;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
+    }
+
+    public static void addExpense(Expense expense) {
+        expenses.add(expense);
+    }
+
+    public static ArrayList<Expense> getExpenses() {
+        return expenses;
+    }
+
+    @Override
+    public String toCSV() {
+        return value+","+
+                expenseType+","+
+                date;
     }
 }
