@@ -7,6 +7,7 @@ import pl.touljaboy.model.ExpenseType;
 import pl.touljaboy.model.User;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 
@@ -51,7 +52,7 @@ public class CsvFileManager {
         String[] expenseStringArray = line.split(",");
         double value = Double.parseDouble(expenseStringArray[0]);
         ExpenseType expenseType = ExpenseType.valueOf(expenseStringArray[1]);
-        String date = expenseStringArray[2];
+        LocalDate date = LocalDate.parse(expenseStringArray[2]); //TEST IT LATER
         return new Expense(value, expenseType, date);
     }
     private User createUserFromString(String line) {

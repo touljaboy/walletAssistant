@@ -2,6 +2,7 @@ package pl.touljaboy.model;
 
 import pl.touljaboy.io.CSVConvertible;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 //The class is used to represent single expenses and to store an ArrayList of those expenses.
@@ -13,9 +14,9 @@ public class Expense implements CSVConvertible {
     public static ArrayList<Expense> expenses = new ArrayList<>();
     private double value;
     private ExpenseType expenseType;
-    private String date;
+    private LocalDate date;
 
-    public Expense(double value, ExpenseType expenseType, String date) {
+    public Expense(double value, ExpenseType expenseType, LocalDate date) {
         this.value = value;
         this.expenseType = expenseType;
         this.date = date;
@@ -40,11 +41,11 @@ public class Expense implements CSVConvertible {
         this.expenseType = expenseType;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

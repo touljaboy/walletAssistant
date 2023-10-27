@@ -3,45 +3,91 @@ package pl.touljaboy.app;
 import pl.touljaboy.exception.NoSuchOptionException;
 import pl.touljaboy.io.ConsolePrinter;
 import pl.touljaboy.io.DataReader;
+import pl.touljaboy.model.Expense;
+import pl.touljaboy.model.ExpenseType;
 
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Objects;
 
 //Class used to manage the flow of information in the app. It will be used to manage basic functionality.
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
 public class ExpenseAppManager {
-    ConsolePrinter printer = new ConsolePrinter();
-    DataReader dataReader = new DataReader(printer);
+    DataReader dataReader = new DataReader();
 
     //constructor for using the app in the terminal
-
-
     public ExpenseAppManager() {
-        printer.printLine("Expense Manager created!");
+        ConsolePrinter.printLine("Expense Manager created!");
     }
 
     //the class is used in the alpha version of the program to print the options into the terminal
     public void controlLoop() {
         Options option;
         do {
-            printer.printLine(ExpenseManagerApp.APP_VERSION);
+            ConsolePrinter.printLine(ExpenseManagerApp.APP_VERSION);
             printOptions();
             option = getOption();
+
             switch(option) {
             //FILL IN THESE CASES, ADD FUNCTIONALITY
                 case EXIT -> {
                     exitProgramm();
                 }
                 case NEWENTRY -> {
+                    addNewExpense();
                 }
                 case DISPLAYAVERAGEEXPENSES -> {
+                    //displayAverageExpenses();
+                }
+                case ADDUSER -> {
+                    //addNewUser();
+                }
+                case DISPLAYEXPENSETYPES -> {
+                    Arrays.stream(ExpenseType.values())
+                            .forEach(value -> ConsolePrinter.printLine(value.toString()));
+                }
+                case ADDEXPENSETYPE -> {
                 }
             }
         } while(option != Options.EXIT);
     }
 
+    //This function speaks for intself - it reads information from appUser and creates a new Expense and
+    //adds it to the expenses ArrayList
+    private void addNewExpense() {
+        try {
+            ConsolePrinter.printLine("Podaj kwotę wydatku (oddzielone kropką): ");
+            double value = dataReader.readDouble();
+
+            ConsolePrinter.printLine("Podaj ID kategorii wydatku: ");
+            ExpenseType expenseType = ExpenseType.createFromInt(dataReader.readInt());
+
+            ConsolePrinter.printLine("Czy wydatek poniosłeś dzisiaj? Y/N");
+            LocalDate localDate = LocalDate.now();
+
+            String decision = dataReader.readLine();
+                if(decision.equals("N")){
+                    ConsolePrinter.printLine("Podaj rok: ");
+                    int year = dataReader.readInt();
+                    ConsolePrinter.printLine("Podaj numer miesiąca: ");
+                    int month = dataReader.readInt();
+                    ConsolePrinter.printLine("Podaj dzień: ");
+                    int day = dataReader.readInt();
+                    localDate = LocalDate.of(year,month,day);
+                }
+
+            Expense.addExpense(new Expense(value,expenseType,localDate));
+
+        } catch (InputMismatchException | NoSuchOptionException e) {
+            ConsolePrinter.printError("You used the wrong datatype! Use double (f.e. 55.43) for value," +
+                    "int for id of an expenseType (make sure an expenseType with such an ID exists first) " +
+                    ", and int/int/int for date");
+        }
+    }
+
     private void exitProgramm() {
-        printer.printLine("Koniec programu ");
+        ConsolePrinter.printLine("Koniec programu ");
         dataReader.closeRead();
     }
 
@@ -53,18 +99,18 @@ public class ExpenseAppManager {
                 option = Options.createFromInt(dataReader.readInt());
                 isOkOption = true;
             } catch (NoSuchOptionException e) {
-                printer.printLine(e.getMessage());
+                ConsolePrinter.printLine(e.getMessage());
             } catch (InputMismatchException e) {
-                printer.printLine("Wprowadzono wartość nieprawidłowego typu (nie jest liczbą całkowitą)");
+                ConsolePrinter.printLine("Wprowadzono wartość nieprawidłowego typu (nie jest liczbą całkowitą)");
             }
         }
         return option;
     }
 
     private void printOptions() {
-        printer.printLine("Wybierz opcję: ");
+        ConsolePrinter.printLine("Wybierz opcję: ");
         for(Options value : Options.values()) {
-            printer.printLine(value.toString());
+            ConsolePrinter.printLine(value.toString());
         }
     }
 
@@ -73,8 +119,10 @@ public class ExpenseAppManager {
     public enum Options {
         EXIT(0,"Wyjście"),
         NEWENTRY(1, "Wprowadź nową transakcję"),
-        DISPLAYAVERAGEEXPENSES(2, "Wyświetl dotychczasowe średnie wydatki/kategorie"),
-        ADDUSER(3,"Dodaj nowego użytkownika");
+        DISPLAYAVERAGEEXPENSES(2, "Wyświetl dotychczasowe średnie wydatki przez kategorię"),
+        ADDUSER(3,"Dodaj nowego użytkownika"),
+        DISPLAYEXPENSETYPES(4,"Wyświetl dostępne kategorie wydatków"),
+        ADDEXPENSETYPE(5,"Dodaj nową kategorię wydatków");
         private final int value;
         private final String description;
 
