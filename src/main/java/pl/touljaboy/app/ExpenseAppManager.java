@@ -5,6 +5,7 @@ import pl.touljaboy.io.ConsolePrinter;
 import pl.touljaboy.io.DataReader;
 import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
+import pl.touljaboy.model.User;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import java.util.Objects;
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
 public class ExpenseAppManager {
     DataReader dataReader = new DataReader();
+    ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
 
     //constructor for using the app in the terminal
     public ExpenseAppManager() {
@@ -30,30 +32,66 @@ public class ExpenseAppManager {
             option = getOption();
 
             switch(option) {
-            //FILL IN THESE CASES, ADD FUNCTIONALITY
-                case EXIT -> {
-                    exitProgramm();
+            //TODO FILL IN THESE CASES, ADD MORE FUNCTIONALITY
+                //TODO I think you should add a functionality to display
+                // all expenses of a given kind, including all in 0.5
+                case EXIT -> exitProgramm();
+                case NEWENTRY -> addNewExpense();
+                case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
+                case ADDUSER ->{
+                    addNewUser();
                 }
-                case NEWENTRY -> {
-                    addNewExpense();
-                }
-                case DISPLAYAVERAGEEXPENSES -> {
-                    //displayAverageExpenses();
-                }
-                case ADDUSER -> {
-                    //addNewUser();
-                }
-                case DISPLAYEXPENSETYPES -> {
-                    Arrays.stream(ExpenseType.values())
-                            .forEach(value -> ConsolePrinter.printLine(value.toString()));
-                }
+                case DISPLAYEXPENSETYPES -> ExpenseType.expenseTypes
+                        .forEach(value -> ConsolePrinter.printLine(value.toString()));
                 case ADDEXPENSETYPE -> {
+                    addNewExpenseType();
+                }
+                case REMOVEEXPENSETYPE -> {
+                    //TODO add in version 0.5
+                }
+                case REMOVEEXPENSE -> {
+                    //TODO add in version 0.5
                 }
             }
         } while(option != Options.EXIT);
     }
 
-    //This function speaks for intself - it reads information from appUser and creates a new Expense and
+    private void addNewUser() {
+        ConsolePrinter.printLine("Podaj nazwę użytkownika: ");
+        String username = dataReader.readLine();
+
+        ConsolePrinter.printLine("Podaj hasło: ");
+        String password = dataReader.readLine();
+
+        ConsolePrinter.printLine("Czy użytkownik jest adminem (Y/N)? ");
+        String decision = dataReader.readLine().toLowerCase();
+        switch(decision) {
+            case "y" -> User.addUser(new User(username,password,true));
+            case "n" -> User.addUser(new User(username,password,false));
+            default -> ConsolePrinter.printError("Podano nieznaną komendę");
+        }
+
+    }
+
+    private void addNewExpenseType() {
+        ConsolePrinter.printLine("Podaj ID wydatku: ");
+        int id = dataReader.readInt();
+
+        ConsolePrinter.printLine("Podaj opis wydatku: ");
+        String desc = dataReader.readLine();
+
+        ExpenseType.expenseTypes.add(new ExpenseType(desc, id));
+    }
+
+    private void displayAverageExpenses() {
+        for (ExpenseType expenseType : ExpenseType.expenseTypes) {
+            String entry = String.format("%.2f",expenseAnalyser.calculateAverageExpenses(expenseType));
+            ConsolePrinter.printLine
+                    (expenseType.getDescription() + " avg = " + entry);
+        }
+    }
+
+    //This function speaks for itself - it reads information from appUser and creates a new Expense and
     //adds it to the expenses ArrayList
     private void addNewExpense() {
         try {
@@ -122,7 +160,9 @@ public class ExpenseAppManager {
         DISPLAYAVERAGEEXPENSES(2, "Wyświetl dotychczasowe średnie wydatki przez kategorię"),
         ADDUSER(3,"Dodaj nowego użytkownika"),
         DISPLAYEXPENSETYPES(4,"Wyświetl dostępne kategorie wydatków"),
-        ADDEXPENSETYPE(5,"Dodaj nową kategorię wydatków");
+        ADDEXPENSETYPE(5,"Dodaj nową kategorię wydatków"),
+        REMOVEEXPENSETYPE(6,"Usuń daną kategorię wydaktu"),
+        REMOVEEXPENSE(7,"Usuń wpis wydatku");
         private final int value;
         private final String description;
 

@@ -21,9 +21,6 @@ public class Expense implements CSVConvertible {
         this.expenseType = expenseType;
         this.date = date;
     }
-    public Expense() {
-
-    }
 
     public double getValue() {
         return value;
