@@ -13,6 +13,9 @@ public class ExpenseType implements CSVConvertible {
 //    CAR("Samochód",3);
     public static ArrayList<ExpenseType> expenseTypes = new ArrayList<>();
     private final String description;
+    //I do not think that this 'id' is necessary.
+    // I can just use indexes from the ArrayList, but maybe leave it be for now, because there might be more
+    //stuff I want to add to a single ExpenseType object, like String name
     private final int id;
     public ExpenseType(String description, int id) {
         this.description = description;
@@ -43,6 +46,8 @@ public class ExpenseType implements CSVConvertible {
                 expenseTypes.removeIf(expenseType -> expenseType.getId()==id);
             else ConsolePrinter.printError("Nieznaleziono elementu o podanym ID");
         }
+
+
 
 
     @Override

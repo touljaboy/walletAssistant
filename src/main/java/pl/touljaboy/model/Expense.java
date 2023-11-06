@@ -60,4 +60,11 @@ public class Expense implements CSVConvertible {
                 expenseType+","+
                 date;
     }
+
+    @Override
+    public String toString() {
+        return "wartość: " + value +
+                ", typ wydatku: " + expenseType.getDescription() +
+                ", data: " + date;
+    }
 }

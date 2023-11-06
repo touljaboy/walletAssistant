@@ -33,27 +33,107 @@ public class ExpenseAppManager {
 
             switch(option) {
             //TODO FILL IN THESE CASES, ADD MORE FUNCTIONALITY
-                //TODO I think you should add a functionality to display
-                // all expenses of a given kind, including all in 0.5
                 case EXIT -> exitProgramm();
                 case NEWENTRY -> addNewExpense();
                 case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
                 case ADDUSER ->{
                     addNewUser();
                 }
-                case DISPLAYEXPENSETYPES -> ExpenseType.expenseTypes
-                        .forEach(value -> ConsolePrinter.printLine(value.toString()));
+                case DISPLAYEXPENSETYPES -> displayExpenseTypes();
                 case ADDEXPENSETYPE -> {
                     addNewExpenseType();
                 }
                 case REMOVEEXPENSETYPE -> {
-                    //TODO add in version 0.5
+                    removeExpenseType();
                 }
                 case REMOVEEXPENSE -> {
-                    //TODO add in version 0.5
+                    removeExpense();
+                }
+                case AVERAGEEXPENSEPERTYPE -> { averageExpensesInGivenCategory();
+                }
+                case DISPLAYALLEXPENSES -> {
+                    //TODO in 0.06 alpha
                 }
             }
         } while(option != Options.EXIT);
+    }
+
+    //Remove a singular Expense entry. I believe it is better to first ask for a category from which an entry
+    //will be deleted, and only then to ask which entry to delete. It would be problematic to find a
+    //singular entry to delete if there are like 50000 entries, right?
+    private void removeExpense() {
+        ConsolePrinter.printLine("Podaj kategorię, w której chcesz usunąć wydatek: ");
+        displayExpenseTypes();
+
+        //ExpenseType chosen by user by its id
+        ExpenseType expenseType = getExpenseType();
+
+        ConsolePrinter.printLine("Wybierz wydatek do usunięcia: ");
+        //display expenses within a given expenseType
+        Expense.expenses.stream()
+                .filter(expense -> expense.getExpenseType().equals(expenseType))
+                .forEach(expense -> ConsolePrinter.printLine(Expense.expenses.indexOf(expense)
+                        + ": " + expense));
+
+        //remove the expense based on user input of index (remove the index from arrayList expenses)
+        int choice = dataReader.readInt();
+
+
+        //TODO I notice there is a lot of Y/N choices in the app for now at least. Maybe make it into a method?
+        //are you sure you wish to delete the entry?
+        ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + Expense.expenses.get(choice).toString() +", " +
+                "Czy chcesz kontynuować? (Y/N)");
+        if(dataReader.readLine().equalsIgnoreCase("Y"))
+            Expense.expenses.remove(choice);
+    }
+
+    //Remove an entire expenseType together with associated expenses
+    private void removeExpenseType() {
+        //are you sure you wish to continue?
+        ConsolePrinter.printLine("Usunięcie danego typu wydatku spowoduje usunięcie wszystkich wydatków danej" +
+                "kategorii. Czy chcesz kontynuować? (Y/N)");
+        if(dataReader.readLine().equalsIgnoreCase("Y")) {
+            ConsolePrinter.printLine("Wybierz kategorię do usunięcia: ");
+            displayExpenseTypes();
+
+            //ExpenseType chosen by user by its id
+            ExpenseType expenseType = getExpenseType();
+
+            //are you really truly sure you wish to continue?
+            ConsolePrinter.printLine("UWAGA! Zamierzasz usunąć kategorię "+expenseType.getDescription() +" oraz całą" +
+                    "jej zawartość. Czy chcesz kontynuować? (Y/N)");
+            if(dataReader.readLine().equalsIgnoreCase("Y")) {
+
+                //Remove expenses with the given category from the arraylist
+                Expense.expenses.removeIf(expense -> expense.getExpenseType().equals(expenseType));
+
+                //Remove the expenseType
+                ExpenseType.expenseTypes.remove(expenseType);
+            }
+        }
+    }
+
+    //I know the name is sort of confusing, but this method essentialy calculates the average expenses ONLY from
+    //the ExpenseType chosen by the user
+    private void averageExpensesInGivenCategory() {
+        ExpenseType expenseType;
+            ConsolePrinter.printLine("Wybierz kategorię: ");
+            displayExpenseTypes();
+
+            expenseType = getExpenseType();
+
+        /* TODO these 3 lines of code repeat themselves, so it would be a good idea to add them to
+        *   the ExpenseAnalyser class as a new method. (See repetition in displayAverageExpenses method) */
+            String averageExpense = String.format("%.2f",expenseAnalyser.calculateAverageExpenses(expenseType));
+        ConsolePrinter.printLine
+                (expenseType.getDescription() + " avg = " + averageExpense);
+    }
+
+
+
+    private void displayExpenseTypes() {
+        ExpenseType.expenseTypes
+                .forEach(value -> ConsolePrinter.printLine(value.toString()));
     }
 
     private void addNewUser() {
@@ -90,6 +170,8 @@ public class ExpenseAppManager {
                     (expenseType.getDescription() + " avg = " + entry);
         }
     }
+
+
 
     //This function speaks for itself - it reads information from appUser and creates a new Expense and
     //adds it to the expenses ArrayList
@@ -129,6 +211,8 @@ public class ExpenseAppManager {
         dataReader.closeRead();
     }
 
+    //TODO see this code repetition
+    // below in both of these methods? I know for a fact you can introduce a parameter in version alpha 0.06
     private Options getOption() {
         boolean isOkOption = false;
         Options option = null;
@@ -144,6 +228,21 @@ public class ExpenseAppManager {
         }
         return option;
     }
+    private ExpenseType getExpenseType() {
+        boolean isOkExpenseType = false;
+        ExpenseType expenseType = null;
+        while(!isOkExpenseType) {
+            try {
+                expenseType = ExpenseType.createFromInt(dataReader.readInt());
+                isOkExpenseType = true;
+            } catch (NoSuchOptionException e) {
+                ConsolePrinter.printError(e.getMessage());
+            } catch (InputMismatchException e) {
+                ConsolePrinter.printLine("Wprowadzono wartość nieprawidłowego typu (nie jest liczbą całkowitą)");
+            }
+        }
+        return expenseType;
+    }
 
     private void printOptions() {
         ConsolePrinter.printLine("Wybierz opcję: ");
@@ -154,15 +253,20 @@ public class ExpenseAppManager {
 
     //enum Option is created here temporarily to manage Options in the 'menu' in the alpha version of the program
     //I figure it can be declared here since a) it's used by this class and b) it a temporary solution
+
+    //TODO clean the Options order so it is more sorted and logical in 0.06
     public enum Options {
         EXIT(0,"Wyjście"),
         NEWENTRY(1, "Wprowadź nową transakcję"),
-        DISPLAYAVERAGEEXPENSES(2, "Wyświetl dotychczasowe średnie wydatki przez kategorię"),
+        DISPLAYAVERAGEEXPENSES(2, "Wyświetl dotychczasowe średnie wydatki przez wszystkie kategorie"),
         ADDUSER(3,"Dodaj nowego użytkownika"),
         DISPLAYEXPENSETYPES(4,"Wyświetl dostępne kategorie wydatków"),
         ADDEXPENSETYPE(5,"Dodaj nową kategorię wydatków"),
         REMOVEEXPENSETYPE(6,"Usuń daną kategorię wydaktu"),
-        REMOVEEXPENSE(7,"Usuń wpis wydatku");
+        REMOVEEXPENSE(7,"Usuń wpis wydatku"),
+        AVERAGEEXPENSEPERTYPE(8, "Wyświetl dotychczasowe średnie wydatki tylko danej kategorii"),
+        DISPLAYALLEXPENSES(10, "Wyświetl wszystkie wydatki");
+
         private final int value;
         private final String description;
 
