@@ -97,12 +97,12 @@ public class CsvFileManager {
     }
 
     private void exportExpenseTypes() {
-        Collection<ExpenseType> expenseTypes = ExpenseType.getExpenseTypes();
+        Collection<ExpenseType> expenseTypes = ExpenseType.expenseTypes;
         exportToCSV(expenseTypes, EXPENSETYPES_FILENAME);
     }
 
     private void exportExpenses() {
-        Collection<Expense> expenses = Expense.getExpenses();
+        Collection<Expense> expenses = Expense.expenses;
         exportToCSV(expenses, EXPENSES_FILENAME);
     }
 

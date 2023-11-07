@@ -40,20 +40,15 @@ public class ExpenseAppManager {
                     addNewUser();
                 }
                 case DISPLAYEXPENSETYPES -> displayExpenseTypes();
-                case ADDEXPENSETYPE -> {
-                    addNewExpenseType();
-                }
-                case REMOVEEXPENSETYPE -> {
-                    removeExpenseType();
-                }
-                case REMOVEEXPENSE -> {
-                    removeExpense();
-                }
-                case AVERAGEEXPENSEPERTYPE -> { averageExpensesInGivenCategory();
-                }
+                case ADDEXPENSETYPE -> addNewExpenseType();
+                case REMOVEEXPENSETYPE -> removeExpenseType();
+                case REMOVEEXPENSE -> removeExpense();
+                case AVERAGEEXPENSEPERTYPE -> averageExpensesInGivenCategory();
+                case PLOTAGRAPH -> expenseAnalyser.plotAFullGraph();
                 case DISPLAYALLEXPENSES -> {
-                    //TODO in 0.06 alpha
+                    //TODO in 0.07 alpha
                 }
+
             }
         } while(option != Options.EXIT);
     }
@@ -212,7 +207,7 @@ public class ExpenseAppManager {
     }
 
     //TODO see this code repetition
-    // below in both of these methods? I know for a fact you can introduce a parameter in version alpha 0.06
+    // below in both of these methods? I know for a fact you can introduce a parameter in version alpha 0.07
     private Options getOption() {
         boolean isOkOption = false;
         Options option = null;
@@ -254,7 +249,7 @@ public class ExpenseAppManager {
     //enum Option is created here temporarily to manage Options in the 'menu' in the alpha version of the program
     //I figure it can be declared here since a) it's used by this class and b) it a temporary solution
 
-    //TODO clean the Options order so it is more sorted and logical in 0.06
+    //TODO clean the Options order so it is more sorted and logical in 0.07 alpha
     public enum Options {
         EXIT(0,"Wyjście"),
         NEWENTRY(1, "Wprowadź nową transakcję"),
@@ -265,7 +260,8 @@ public class ExpenseAppManager {
         REMOVEEXPENSETYPE(6,"Usuń daną kategorię wydaktu"),
         REMOVEEXPENSE(7,"Usuń wpis wydatku"),
         AVERAGEEXPENSEPERTYPE(8, "Wyświetl dotychczasowe średnie wydatki tylko danej kategorii"),
-        DISPLAYALLEXPENSES(10, "Wyświetl wszystkie wydatki");
+        DISPLAYALLEXPENSES(9, "Wyświetl wszystkie wydatki"),
+        PLOTAGRAPH(10,"Utwórz wykres z dotychczasowych wydatków");
 
         private final int value;
         private final String description;

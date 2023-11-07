@@ -14,4 +14,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.panayotis.javaplot/javaplot -->
+        <dependency>
+            <groupId>com.panayotis.javaplot</groupId>
+            <artifactId>javaplot</artifactId>
+            <version>0.5.0</version>
+        </dependency>
+
+    </dependencies>
 </project>

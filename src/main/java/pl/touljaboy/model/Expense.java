@@ -4,6 +4,7 @@ import pl.touljaboy.io.CSVConvertible;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 
 //The class is used to represent single expenses and to store an ArrayList of those expenses.
 public class Expense implements CSVConvertible {
@@ -50,10 +51,6 @@ public class Expense implements CSVConvertible {
         expenses.add(expense);
     }
 
-    public static ArrayList<Expense> getExpenses() {
-        return expenses;
-    }
-
     @Override
     public String toCSV() {
         return value+","+
@@ -66,5 +63,21 @@ public class Expense implements CSVConvertible {
         return "wartość: " + value +
                 ", typ wydatku: " + expenseType.getDescription() +
                 ", data: " + date;
+    }
+
+
+    //Expenses are compared by date. I had to use these overriden functions only in one instance so far (when presenting
+    //a graphical interpretation). So long it works, it's not stupid!
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Expense expense = (Expense) o;
+        return date.isEqual(expense.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(date);
     }
 }

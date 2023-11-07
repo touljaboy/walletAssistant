@@ -22,9 +22,6 @@ public class ExpenseType implements CSVConvertible {
         this.id = id;
     }
 
-    public static ArrayList<ExpenseType> getExpenseTypes() {
-        return expenseTypes;
-    }
     public String getDescription() {
         return description;
     }
