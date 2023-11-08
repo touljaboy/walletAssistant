@@ -1,7 +1,10 @@
 package pl.touljaboy.app;
 
+import pl.touljaboy.exception.DataExportException;
+import pl.touljaboy.exception.DataImportException;
 import pl.touljaboy.exception.NoSuchOptionException;
 import pl.touljaboy.io.ConsolePrinter;
+import pl.touljaboy.io.CsvFileManager;
 import pl.touljaboy.io.DataReader;
 import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
@@ -17,10 +20,16 @@ import java.util.Objects;
 public class ExpenseAppManager {
     DataReader dataReader = new DataReader();
     ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
+    CsvFileManager csvFileManager = new CsvFileManager();
 
-    //constructor for using the app in the terminal
+    //constructor for using the app in the terminal. Data is imported from file in constructor.
     public ExpenseAppManager() {
-        ConsolePrinter.printLine("Expense Manager created!");
+        try {
+            csvFileManager.importData();
+        } catch (DataImportException e) {
+            ConsolePrinter.printError(e.getMessage());
+            ConsolePrinter.printLine("Zainicjowano nową bazę danych");
+        }
     }
 
     //the class is used in the alpha version of the program to print the options into the terminal
@@ -36,21 +45,29 @@ public class ExpenseAppManager {
                 case EXIT -> exitProgramm();
                 case NEWENTRY -> addNewExpense();
                 case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
-                case ADDUSER ->{
-                    addNewUser();
-                }
+                case ADDUSER -> addNewUser();
                 case DISPLAYEXPENSETYPES -> displayExpenseTypes();
                 case ADDEXPENSETYPE -> addNewExpenseType();
                 case REMOVEEXPENSETYPE -> removeExpenseType();
                 case REMOVEEXPENSE -> removeExpense();
                 case AVERAGEEXPENSEPERTYPE -> averageExpensesInGivenCategory();
                 case PLOTAGRAPH -> expenseAnalyser.plotAFullGraph();
-                case DISPLAYALLEXPENSES -> {
-                    //TODO in 0.07 alpha
+                case REMOVEUSER -> {
+                    //TODO in alpha 0.08
                 }
+                case DISPLAYALLEXPENSES -> displayExpenses();
 
+                case DISPLAYUSERS -> {
+                    //TODO in alpha 0.08
+                }
             }
         } while(option != Options.EXIT);
+    }
+
+    private void displayExpenses() {
+        for (Expense expense : Expense.expenses) {
+            ConsolePrinter.printLine(expense.toString());
+        }
     }
 
     //Remove a singular Expense entry. I believe it is better to first ask for a category from which an entry
@@ -202,12 +219,18 @@ public class ExpenseAppManager {
     }
 
     private void exitProgramm() {
+        try {
+            csvFileManager.exportData();
+            ConsolePrinter.printLine("Export danych do pliku zakończony powodzeniem");
+        } catch (DataExportException e) {
+            ConsolePrinter.printError(e.getMessage());
+        }
         ConsolePrinter.printLine("Koniec programu ");
         dataReader.closeRead();
     }
 
     //TODO see this code repetition
-    // below in both of these methods? I know for a fact you can introduce a parameter in version alpha 0.07
+    // below in both of these methods? I know for a fact you can introduce a parameter in version alpha 0.08
     private Options getOption() {
         boolean isOkOption = false;
         Options option = null;
@@ -249,19 +272,22 @@ public class ExpenseAppManager {
     //enum Option is created here temporarily to manage Options in the 'menu' in the alpha version of the program
     //I figure it can be declared here since a) it's used by this class and b) it a temporary solution
 
-    //TODO clean the Options order so it is more sorted and logical in 0.07 alpha
+    //TODO add menu layers, f.e. users/addUser,removeuser,modifyuser OR expenses/addexpense,analise etc
     public enum Options {
         EXIT(0,"Wyjście"),
         NEWENTRY(1, "Wprowadź nową transakcję"),
-        DISPLAYAVERAGEEXPENSES(2, "Wyświetl dotychczasowe średnie wydatki przez wszystkie kategorie"),
+        ADDEXPENSETYPE(2,"Dodaj nową kategorię wydatków"),
         ADDUSER(3,"Dodaj nowego użytkownika"),
-        DISPLAYEXPENSETYPES(4,"Wyświetl dostępne kategorie wydatków"),
-        ADDEXPENSETYPE(5,"Dodaj nową kategorię wydatków"),
-        REMOVEEXPENSETYPE(6,"Usuń daną kategorię wydaktu"),
-        REMOVEEXPENSE(7,"Usuń wpis wydatku"),
-        AVERAGEEXPENSEPERTYPE(8, "Wyświetl dotychczasowe średnie wydatki tylko danej kategorii"),
-        DISPLAYALLEXPENSES(9, "Wyświetl wszystkie wydatki"),
-        PLOTAGRAPH(10,"Utwórz wykres z dotychczasowych wydatków");
+        REMOVEEXPENSE(4,"Usuń wpis wydatku"),
+        REMOVEEXPENSETYPE(5,"Usuń daną kategorię wydaktu"),
+
+        REMOVEUSER(6, "Usuń użytkownika"),
+        DISPLAYALLEXPENSES(7, "Wyświetl wszystkie wydatki"),
+        DISPLAYEXPENSETYPES(8,"Wyświetl dostępne kategorie wydatków"),
+        DISPLAYUSERS(9, "Wyświetl dostępne konta użytkowników"),
+        DISPLAYAVERAGEEXPENSES(10, "Wyświetl dotychczasowe średnie wydatki przez wszystkie kategorie"),
+        AVERAGEEXPENSEPERTYPE(11, "Wyświetl dotychczasowe średnie wydatki tylko danej kategorii"),
+        PLOTAGRAPH(12,"Utwórz wykres z dotychczasowych wydatków");
 
         private final int value;
         private final String description;

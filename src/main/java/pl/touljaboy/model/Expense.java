@@ -6,6 +6,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 
+//TODO consider creating a class called Environment - the class will store all of the static ArrayLists from
+// Users, ExpenseTypes and Expenses. I believe it will look better and clearer (especially when it comes to data import)
+
+
 //The class is used to represent single expenses and to store an ArrayList of those expenses.
 public class Expense implements CSVConvertible {
     /*
@@ -54,7 +58,7 @@ public class Expense implements CSVConvertible {
     @Override
     public String toCSV() {
         return value+","+
-                expenseType+","+
+                expenseType.toCSV()+","+
                 date;
     }
 

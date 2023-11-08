@@ -40,8 +40,8 @@ public class CsvFileManager {
 
     private ExpenseType createExpenseTypeFromString(String line) {
         String[] expenseTypesString = line.split(",");
-        int id = Integer.parseInt(expenseTypesString[1]);
-        String desc = expenseTypesString[0];
+        int id = Integer.parseInt(expenseTypesString[0]);
+        String desc = expenseTypesString[1];
         return new ExpenseType(desc, id);
     }
 
@@ -78,7 +78,7 @@ public class CsvFileManager {
             ConsolePrinter.printError("BŁĄD! Próba wczytania opcji o nieistniejącym id - czy na pewno" +
                     "expenseTypes zostały wczytane poprawnie?");
         }
-        LocalDate date = LocalDate.parse(expenseStringArray[2]); //TODO TEST IT LATER
+        LocalDate date = LocalDate.parse(expenseStringArray[3]);
         return new Expense(value, expenseType, date);
     }
     private User createUserFromString(String line) {
