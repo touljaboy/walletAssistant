@@ -107,7 +107,7 @@ public class CsvFileManager {
     }
 
     private void exportUsers() {
-        Collection<User> users = User.getUsers();
+        Collection<User> users = User.users;
         exportToCSV(users, USERDATA_FILENAME);
     }
 

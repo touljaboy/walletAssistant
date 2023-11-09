@@ -10,6 +10,7 @@ import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
 import pl.touljaboy.model.User;
 
+import java.io.Console;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.InputMismatchException;
@@ -52,16 +53,31 @@ public class ExpenseAppManager {
                 case REMOVEEXPENSE -> removeExpense();
                 case AVERAGEEXPENSEPERTYPE -> averageExpensesInGivenCategory();
                 case PLOTAGRAPH -> expenseAnalyser.plotAFullGraph();
-                case REMOVEUSER -> {
-                    //TODO in alpha 0.08
-                }
+                case REMOVEUSER -> removeUser();
                 case DISPLAYALLEXPENSES -> displayExpenses();
-
-                case DISPLAYUSERS -> {
-                    //TODO in alpha 0.08
-                }
+                case DISPLAYUSERS -> displayUsers();
             }
         } while(option != Options.EXIT);
+    }
+
+    private void displayUsers() {
+        for (int i = 0; i < User.users.size(); i++) {
+            ConsolePrinter.printLine(i+": "+User.users.get(i));
+        }
+    }
+
+    private void removeUser() {
+        ConsolePrinter.printLine("Podaj nazwę użytkownika, którego chcesz usunąć. ");
+        displayUsers();
+        int choice = dataReader.readInt();
+        //Ask the user if he really wants to delete the user.
+        //TODO remmeber, you cannot delete your current user
+
+        ConsolePrinter.printLine("Zamierzasz usunąć użytkownika: " + User.users.get(choice) +
+                ". Czy chcesz kontynuować? (Y/N)");
+        if(dataReader.readLine().equalsIgnoreCase("Y")) {
+            User.users.remove(choice);
+        }
     }
 
     private void displayExpenses() {
@@ -229,8 +245,8 @@ public class ExpenseAppManager {
         dataReader.closeRead();
     }
 
-    //TODO see this code repetition
-    // below in both of these methods? I know for a fact you can introduce a parameter in version alpha 0.08
+   //Implementing a parameter method to replace the two methods below would be a really nice to flex on your friends,
+    //but it requires much refactoring (I tried to do this, not worth it for now)
     private Options getOption() {
         boolean isOkOption = false;
         Options option = null;
@@ -284,7 +300,7 @@ public class ExpenseAppManager {
         REMOVEUSER(6, "Usuń użytkownika"),
         DISPLAYALLEXPENSES(7, "Wyświetl wszystkie wydatki"),
         DISPLAYEXPENSETYPES(8,"Wyświetl dostępne kategorie wydatków"),
-        DISPLAYUSERS(9, "Wyświetl dostępne konta użytkowników"),
+        DISPLAYUSERS(9, "Wyświetl nazwy użytkowników"),
         DISPLAYAVERAGEEXPENSES(10, "Wyświetl dotychczasowe średnie wydatki przez wszystkie kategorie"),
         AVERAGEEXPENSEPERTYPE(11, "Wyświetl dotychczasowe średnie wydatki tylko danej kategorii"),
         PLOTAGRAPH(12,"Utwórz wykres z dotychczasowych wydatków");
