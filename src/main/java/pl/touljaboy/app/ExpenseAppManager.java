@@ -6,15 +6,13 @@ import pl.touljaboy.exception.NoSuchOptionException;
 import pl.touljaboy.io.ConsolePrinter;
 import pl.touljaboy.io.CsvFileManager;
 import pl.touljaboy.io.DataReader;
+import pl.touljaboy.model.Environment;
 import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
 import pl.touljaboy.model.User;
 
-import java.io.Console;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.InputMismatchException;
-import java.util.Objects;
 
 //Class used to manage the flow of information in the app. It will be used to manage basic functionality.
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
@@ -22,13 +20,17 @@ public class ExpenseAppManager {
     DataReader dataReader = new DataReader();
     ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
     CsvFileManager csvFileManager = new CsvFileManager();
+    Environment environment;
 
     //constructor for using the app in the terminal. Data is imported from file in constructor.
     public ExpenseAppManager() {
         try {
-            csvFileManager.importData();
+            environment = csvFileManager.importData();
+            ConsolePrinter.printLine("Import danych zakończony sukcesem");
+
         } catch (DataImportException e) {
             ConsolePrinter.printError(e.getMessage());
+            environment = new Environment();
             ConsolePrinter.printLine("Zainicjowano nową bazę danych");
         }
     }
@@ -61,8 +63,8 @@ public class ExpenseAppManager {
     }
 
     private void displayUsers() {
-        for (int i = 0; i < User.users.size(); i++) {
-            ConsolePrinter.printLine(i+": "+User.users.get(i));
+        for (int i = 0; i < Environment.users.size(); i++) {
+            ConsolePrinter.printLine(i+": "+Environment.users.get(i));
         }
     }
 
@@ -73,15 +75,15 @@ public class ExpenseAppManager {
         //Ask the user if he really wants to delete the user.
         //TODO remmeber, you cannot delete your current user
 
-        ConsolePrinter.printLine("Zamierzasz usunąć użytkownika: " + User.users.get(choice) +
+        ConsolePrinter.printLine("Zamierzasz usunąć użytkownika: " + Environment.users.get(choice) +
                 ". Czy chcesz kontynuować? (Y/N)");
         if(dataReader.readLine().equalsIgnoreCase("Y")) {
-            User.users.remove(choice);
+            Environment.users.remove(choice);
         }
     }
 
     private void displayExpenses() {
-        for (Expense expense : Expense.expenses) {
+        for (Expense expense : Environment.expenses) {
             ConsolePrinter.printLine(expense.toString());
         }
     }
@@ -98,9 +100,9 @@ public class ExpenseAppManager {
 
         ConsolePrinter.printLine("Wybierz wydatek do usunięcia: ");
         //display expenses within a given expenseType
-        Expense.expenses.stream()
+        Environment.expenses.stream()
                 .filter(expense -> expense.getExpenseType().equals(expenseType))
-                .forEach(expense -> ConsolePrinter.printLine(Expense.expenses.indexOf(expense)
+                .forEach(expense -> ConsolePrinter.printLine(Environment.expenses.indexOf(expense)
                         + ": " + expense));
 
         //remove the expense based on user input of index (remove the index from arrayList expenses)
@@ -109,10 +111,10 @@ public class ExpenseAppManager {
 
         //TODO I notice there is a lot of Y/N choices in the app for now at least. Maybe make it into a method?
         //are you sure you wish to delete the entry?
-        ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + Expense.expenses.get(choice).toString() +", " +
+        ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + Environment.expenses.get(choice).toString() +", " +
                 "Czy chcesz kontynuować? (Y/N)");
         if(dataReader.readLine().equalsIgnoreCase("Y"))
-            Expense.expenses.remove(choice);
+            Environment.expenses.remove(choice);
     }
 
     //Remove an entire expenseType together with associated expenses
@@ -128,15 +130,15 @@ public class ExpenseAppManager {
             ExpenseType expenseType = getExpenseType();
 
             //are you really truly sure you wish to continue?
-            ConsolePrinter.printLine("UWAGA! Zamierzasz usunąć kategorię "+expenseType.getDescription() +" oraz całą" +
+            ConsolePrinter.printLine("UWAGA! Zamierzasz usunąć kategorię "+expenseType.description() +" oraz całą" +
                     "jej zawartość. Czy chcesz kontynuować? (Y/N)");
             if(dataReader.readLine().equalsIgnoreCase("Y")) {
 
                 //Remove expenses with the given category from the arraylist
-                Expense.expenses.removeIf(expense -> expense.getExpenseType().equals(expenseType));
+                Environment.expenses.removeIf(expense -> expense.getExpenseType().equals(expenseType));
 
                 //Remove the expenseType
-                ExpenseType.expenseTypes.remove(expenseType);
+                Environment.expenseTypes.remove(expenseType);
             }
         }
     }
@@ -154,13 +156,13 @@ public class ExpenseAppManager {
         *   the ExpenseAnalyser class as a new method. (See repetition in displayAverageExpenses method) */
             String averageExpense = String.format("%.2f",expenseAnalyser.calculateAverageExpenses(expenseType));
         ConsolePrinter.printLine
-                (expenseType.getDescription() + " avg = " + averageExpense);
+                (expenseType.description() + " avg = " + averageExpense);
     }
 
 
 
     private void displayExpenseTypes() {
-        ExpenseType.expenseTypes
+        Environment.expenseTypes
                 .forEach(value -> ConsolePrinter.printLine(value.toString()));
     }
 
@@ -174,8 +176,8 @@ public class ExpenseAppManager {
         ConsolePrinter.printLine("Czy użytkownik jest adminem (Y/N)? ");
         String decision = dataReader.readLine().toLowerCase();
         switch(decision) {
-            case "y" -> User.addUser(new User(username,password,true));
-            case "n" -> User.addUser(new User(username,password,false));
+            case "y" -> environment.addUser(new User(username,password,true));
+            case "n" -> environment.addUser(new User(username,password,false));
             default -> ConsolePrinter.printError("Podano nieznaną komendę");
         }
 
@@ -188,14 +190,14 @@ public class ExpenseAppManager {
         ConsolePrinter.printLine("Podaj opis wydatku: ");
         String desc = dataReader.readLine();
 
-        ExpenseType.expenseTypes.add(new ExpenseType(desc, id));
+        Environment.expenseTypes.add(new ExpenseType(desc, id));
     }
 
     private void displayAverageExpenses() {
-        for (ExpenseType expenseType : ExpenseType.expenseTypes) {
+        for (ExpenseType expenseType : Environment.expenseTypes) {
             String entry = String.format("%.2f",expenseAnalyser.calculateAverageExpenses(expenseType));
             ConsolePrinter.printLine
-                    (expenseType.getDescription() + " avg = " + entry);
+                    (expenseType.description() + " avg = " + entry);
         }
     }
 
@@ -225,7 +227,7 @@ public class ExpenseAppManager {
                     localDate = LocalDate.of(year,month,day);
                 }
 
-            Expense.addExpense(new Expense(value,expenseType,localDate));
+            environment.addExpense(new Expense(value,expenseType,localDate));
 
         } catch (InputMismatchException | NoSuchOptionException e) {
             ConsolePrinter.printError("You used the wrong datatype! Use double (f.e. 55.43) for value," +

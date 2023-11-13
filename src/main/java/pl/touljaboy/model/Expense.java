@@ -3,12 +3,7 @@ package pl.touljaboy.model;
 import pl.touljaboy.io.CSVConvertible;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Objects;
-
-//TODO consider creating a class called Environment - the class will store all of the static ArrayLists from
-// Users, ExpenseTypes and Expenses. I believe it will look better and clearer (especially when it comes to data import)
-
 
 //The class is used to represent single expenses and to store an ArrayList of those expenses.
 public class Expense implements CSVConvertible {
@@ -16,7 +11,6 @@ public class Expense implements CSVConvertible {
     I believe that expenses arrayList will be useful in the future development. I make it public static, so that
     every class in the program can access it for the time being. I might find a better way in future development.
      */
-    public static ArrayList<Expense> expenses = new ArrayList<>();
     private double value;
     private ExpenseType expenseType;
     private LocalDate date;
@@ -51,9 +45,6 @@ public class Expense implements CSVConvertible {
         this.date = date;
     }
 
-    public static void addExpense(Expense expense) {
-        expenses.add(expense);
-    }
 
     @Override
     public String toCSV() {
@@ -65,7 +56,7 @@ public class Expense implements CSVConvertible {
     @Override
     public String toString() {
         return "wartość: " + value +
-                ", typ wydatku: " + expenseType.getDescription() +
+                ", typ wydatku: " + expenseType.description() +
                 ", data: " + date;
     }
 

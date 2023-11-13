@@ -5,18 +5,13 @@ import com.panayotis.gnuplot.JavaPlot;
 import com.panayotis.gnuplot.plot.DataSetPlot;
 import com.panayotis.gnuplot.style.PlotStyle;
 import com.panayotis.gnuplot.style.Style;
+import pl.touljaboy.model.Environment;
 import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-
-import static java.lang.Math.sin;
 
 //This section will be developed to perform basic analytical functions for now, and more complex ones in the future
 public class ExpenseAnalyser {
@@ -42,9 +37,9 @@ public class ExpenseAnalyser {
     //only do it for a hobby. As I've said, I will later use JavaFX, but who knows, maybe some of the things
     //I've learned here will be useful!
     public void plotAFullGraph() {
-        ArrayList<Expense> temp = Expense.expenses;
+        ArrayList<Expense> temp = Environment.expenses;
         //date is initialized and used in later loop
-        LocalDate date = Expense.expenses.get(0).getDate();
+        LocalDate date = Environment.expenses.get(0).getDate();
 
         //This code might look overly complicated for it's task and it truly is!
         //here is a graph of what is acomplished:
@@ -110,13 +105,13 @@ public class ExpenseAnalyser {
 
     public double calculateAverageExpenses(ExpenseType expenseType) {
         //sum the values of a given type
-        double sum = Expense.expenses.stream()
-                .filter(expense -> expense.getExpenseType().getId()==expenseType.getId())
+        double sum = Environment.expenses.stream()
+                .filter(expense -> expense.getExpenseType().id()==expenseType.id())
                 .mapToDouble(Expense::getValue)
                 .sum();
         //count the values of a given type
-        long count = Expense.expenses.stream()
-                .filter(expense -> expense.getExpenseType().getId()==expenseType.getId())
+        long count = Environment.expenses.stream()
+                .filter(expense -> expense.getExpenseType().id()==expenseType.id())
                 .count();
         //return average
         return sum/count;

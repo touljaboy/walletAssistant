@@ -3,6 +3,7 @@ package pl.touljaboy.io;
 import pl.touljaboy.exception.DataExportException;
 import pl.touljaboy.exception.DataImportException;
 import pl.touljaboy.exception.NoSuchOptionException;
+import pl.touljaboy.model.Environment;
 import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
 import pl.touljaboy.model.User;
@@ -20,19 +21,21 @@ public class CsvFileManager {
     private static final String EXPENSETYPES_FILENAME = "expenseTypes.csv";
 
     //Class used to importData from a file
-    public void importData() {
-        importUsers();
-        importExpenseTypes();
-        importExpenses();
+    public Environment importData() {
+        Environment environment = new Environment();
+        importUsers(environment);
+        importExpenseTypes(environment);
+        importExpenses(environment);
+        return environment;
     }
 
-    private void importExpenseTypes() {
+    private void importExpenseTypes(Environment environment) {
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(EXPENSETYPES_FILENAME));
             bufferedReader
                     .lines()
                     .map(this::createExpenseTypeFromString)
-                    .forEach(ExpenseType::addExpenseType);
+                    .forEach(environment::addExpenseType);
         } catch (FileNotFoundException e) {
             throw new DataImportException("NIEZNALEZIONO PLIKU: " + EXPENSETYPES_FILENAME);
         }
@@ -45,24 +48,24 @@ public class CsvFileManager {
         return new ExpenseType(desc, id);
     }
 
-    private void importExpenses() {
+    private void importExpenses(Environment environment) {
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(EXPENSES_FILENAME));
             bufferedReader
                     .lines()
                     .map(this::createExpenseFromString)
-                    .forEach(Expense::addExpense);
+                    .forEach(environment::addExpense);
         } catch (FileNotFoundException e) {
             throw new DataImportException("NIEZNALEZIONO PLIKU: " + EXPENSES_FILENAME);
         }
     }
 
-    private void importUsers() {
+    private void importUsers(Environment environment) {
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(USERDATA_FILENAME));
             bufferedReader.lines()
                     .map(this::createUserFromString)
-                    .forEach(User::addUser);
+                    .forEach(environment::addUser);
         } catch (FileNotFoundException e) {
             throw new DataImportException("NIEZNALEZIONO PLIKU: " + USERDATA_FILENAME);
         }
@@ -97,17 +100,17 @@ public class CsvFileManager {
     }
 
     private void exportExpenseTypes() {
-        Collection<ExpenseType> expenseTypes = ExpenseType.expenseTypes;
+        Collection<ExpenseType> expenseTypes = Environment.expenseTypes;
         exportToCSV(expenseTypes, EXPENSETYPES_FILENAME);
     }
 
     private void exportExpenses() {
-        Collection<Expense> expenses = Expense.expenses;
+        Collection<Expense> expenses = Environment.expenses;
         exportToCSV(expenses, EXPENSES_FILENAME);
     }
 
     private void exportUsers() {
-        Collection<User> users = User.users;
+        Collection<User> users = Environment.users;
         exportToCSV(users, USERDATA_FILENAME);
     }
 
