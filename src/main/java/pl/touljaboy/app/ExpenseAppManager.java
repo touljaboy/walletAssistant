@@ -44,7 +44,6 @@ public class ExpenseAppManager {
             option = getOption();
 
             switch(option) {
-            //TODO FILL IN THESE CASES, ADD MORE FUNCTIONALITY
                 case EXIT -> exitProgramm();
                 case NEWENTRY -> addNewExpense();
                 case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
@@ -83,7 +82,7 @@ public class ExpenseAppManager {
     }
 
     private void displayExpenses() {
-        for (Expense expense : Environment.expenses) {
+        for (Expense expense : environment.expenses) {
             ConsolePrinter.printLine(expense.toString());
         }
     }
@@ -100,22 +99,22 @@ public class ExpenseAppManager {
 
         ConsolePrinter.printLine("Wybierz wydatek do usunięcia: ");
         //display expenses within a given expenseType
-        Environment.expenses.stream()
+        environment.expenses.stream()
                 .filter(expense -> expense.getExpenseType().equals(expenseType))
-                .forEach(expense -> ConsolePrinter.printLine(Environment.expenses.indexOf(expense)
+                .forEach(expense -> ConsolePrinter.printLine(environment.expenses.indexOf(expense)
                         + ": " + expense));
 
         //remove the expense based on user input of index (remove the index from arrayList expenses)
         int choice = dataReader.readInt();
 
 
-        //TODO I notice there is a lot of Y/N choices in the app for now at least. Maybe make it into a method?
         //are you sure you wish to delete the entry?
-        ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + Environment.expenses.get(choice).toString() +", " +
+        ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + environment.expenses.get(choice).toString() +", " +
                 "Czy chcesz kontynuować? (Y/N)");
         if(dataReader.readLine().equalsIgnoreCase("Y"))
-            Environment.expenses.remove(choice);
+            environment.expenses.remove(choice);
     }
+
 
     //Remove an entire expenseType together with associated expenses
     private void removeExpenseType() {
@@ -135,7 +134,7 @@ public class ExpenseAppManager {
             if(dataReader.readLine().equalsIgnoreCase("Y")) {
 
                 //Remove expenses with the given category from the arraylist
-                Environment.expenses.removeIf(expense -> expense.getExpenseType().equals(expenseType));
+                environment.expenses.removeIf(expense -> expense.getExpenseType().equals(expenseType));
 
                 //Remove the expenseType
                 Environment.expenseTypes.remove(expenseType);
@@ -149,14 +148,9 @@ public class ExpenseAppManager {
         ExpenseType expenseType;
             ConsolePrinter.printLine("Wybierz kategorię: ");
             displayExpenseTypes();
-
             expenseType = getExpenseType();
 
-        /* TODO these 3 lines of code repeat themselves, so it would be a good idea to add them to
-        *   the ExpenseAnalyser class as a new method. (See repetition in displayAverageExpenses method) */
-            String averageExpense = String.format("%.2f",expenseAnalyser.calculateAverageExpenses(expenseType));
-        ConsolePrinter.printLine
-                (expenseType.description() + " avg = " + averageExpense);
+            expenseAnalyser.printAverageExpense(expenseType);
     }
 
 
@@ -194,11 +188,8 @@ public class ExpenseAppManager {
     }
 
     private void displayAverageExpenses() {
-        for (ExpenseType expenseType : Environment.expenseTypes) {
-            String entry = String.format("%.2f",expenseAnalyser.calculateAverageExpenses(expenseType));
-            ConsolePrinter.printLine
-                    (expenseType.description() + " avg = " + entry);
-        }
+        for (ExpenseType expenseType : Environment.expenseTypes)
+            expenseAnalyser.printAverageExpense(expenseType);
     }
 
 
@@ -289,8 +280,6 @@ public class ExpenseAppManager {
 
     //enum Option is created here temporarily to manage Options in the 'menu' in the alpha version of the program
     //I figure it can be declared here since a) it's used by this class and b) it a temporary solution
-
-    //TODO add menu layers, f.e. users/addUser,removeuser,modifyuser OR expenses/addexpense,analise etc
     public enum Options {
         EXIT(0,"Wyjście"),
         NEWENTRY(1, "Wprowadź nową transakcję"),

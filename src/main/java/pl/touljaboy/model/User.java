@@ -4,8 +4,10 @@ import pl.touljaboy.io.CSVConvertible;
 
 
 //TODO create functionality regarding logging in and user restrictions (admin/not admin)
+//TODO figure out how data should be restricted to certain user only and ofc implement it
 //Class used to store user info. In the future, I opt towards storing the information in MySql database.
 public class User implements CSVConvertible{
+
     String username;
     String password;
     boolean isAdmin;

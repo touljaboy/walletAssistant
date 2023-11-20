@@ -16,6 +16,7 @@ import java.util.Collection;
 //I will definetely implement a MySQL type database (well, its the sql language I've learned and it works with
 //java so why not)
 public class CsvFileManager {
+    Environment environment;
     private static final String EXPENSES_FILENAME = "walletAssistant.csv";
     private static final String USERDATA_FILENAME = "users.csv";
     private static final String EXPENSETYPES_FILENAME = "expenseTypes.csv";
@@ -105,7 +106,7 @@ public class CsvFileManager {
     }
 
     private void exportExpenses() {
-        Collection<Expense> expenses = Environment.expenses;
+        Collection<Expense> expenses = environment.expenses;
         exportToCSV(expenses, EXPENSES_FILENAME);
     }
 
