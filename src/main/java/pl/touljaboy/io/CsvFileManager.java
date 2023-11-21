@@ -83,7 +83,8 @@ public class CsvFileManager {
                     "expenseTypes zostały wczytane poprawnie?");
         }
         LocalDate date = LocalDate.parse(expenseStringArray[3]);
-        return new Expense(value, expenseType, date);
+        String username = expenseStringArray[4];
+        return new Expense(value, expenseType, date, username);
     }
     private User createUserFromString(String line) {
         String[] usersStringArray = line.split(",");

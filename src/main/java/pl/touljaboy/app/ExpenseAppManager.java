@@ -12,11 +12,17 @@ import pl.touljaboy.model.ExpenseType;
 import pl.touljaboy.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 
 //Class used to manage the flow of information in the app. It will be used to manage basic functionality.
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
 public class ExpenseAppManager {
+    public static String CURRENT_USER;
+    //I figure, it is logical to have a static arrayList in environment holding all expenses of all users, but here
+    //will be a copy of the arrayList. The static arraylist will then be updated and all data will be stored together.
+    //I believe this way is better, because I might add options to analyse the entire dataset of all users, for
+    //statistical purposes of course
     DataReader dataReader = new DataReader();
     ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
     CsvFileManager csvFileManager = new CsvFileManager();
@@ -198,6 +204,7 @@ public class ExpenseAppManager {
     //adds it to the expenses ArrayList
     private void addNewExpense() {
         try {
+            String username = CURRENT_USER;
             ConsolePrinter.printLine("Podaj kwotę wydatku (oddzielone kropką): ");
             double value = dataReader.readDouble();
 
@@ -218,7 +225,7 @@ public class ExpenseAppManager {
                     localDate = LocalDate.of(year,month,day);
                 }
 
-            environment.addExpense(new Expense(value,expenseType,localDate));
+            environment.addExpense(new Expense(value,expenseType,localDate, username));
 
         } catch (InputMismatchException | NoSuchOptionException e) {
             ConsolePrinter.printError("You used the wrong datatype! Use double (f.e. 55.43) for value," +
@@ -276,6 +283,35 @@ public class ExpenseAppManager {
         for(Options value : Options.values()) {
             ConsolePrinter.printLine(value.toString());
         }
+    }
+
+    public void userLoginLoop() {
+        boolean isCorrectUser = false;
+        User user;
+        while(!isCorrectUser) {
+            user = createUserFromInput();
+            if(!Environment.users.contains(user)) {
+                ConsolePrinter.printError("Niepoprawny login i/lub hasło");
+            }
+            else {
+                ConsolePrinter.printLine("Witaj, " + user.getUsername());
+                isCorrectUser=true;
+                CURRENT_USER = user.getUsername();
+            }
+        }
+    }
+
+    private User createUserFromInput() {
+        ConsolePrinter.printLine("Podaj nazwę użytkownika");
+        String username = dataReader.readLine();
+        ConsolePrinter.printLine("Podaj hasło");
+        String password = dataReader.readLine();
+        boolean isAdmin = false;
+        for (User user : Environment.users) {
+            if(user.getUsername().equals(username) && user.getPassword().equals(password))
+                isAdmin = user.isAdmin();
+        }
+        return new User(username,password,isAdmin);
     }
 
     //enum Option is created here temporarily to manage Options in the 'menu' in the alpha version of the program

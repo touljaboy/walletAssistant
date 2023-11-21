@@ -7,12 +7,8 @@ import java.util.Scanner;
 
 public class DataReader {
     private Scanner scanner = new Scanner(System.in);
-
     public DataReader() {
-
     }
-
-
     public int readInt() {
         try {
             return scanner.nextInt();

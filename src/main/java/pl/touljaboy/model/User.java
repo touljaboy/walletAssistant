@@ -1,16 +1,20 @@
 package pl.touljaboy.model;
 
 import pl.touljaboy.io.CSVConvertible;
+import pl.touljaboy.io.DataReader;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 
-//TODO create functionality regarding logging in and user restrictions (admin/not admin)
-//TODO figure out how data should be restricted to certain user only and ofc implement it
+//TODO create functionality regarding user restrictions (admin/not admin)
+// figure out how data should be restricted to certain user only and ofc implement it
 //Class used to store user info. In the future, I opt towards storing the information in MySql database.
 public class User implements CSVConvertible{
 
-    String username;
-    String password;
-    boolean isAdmin;
+    private String username;
+    private String password;
+    private boolean isAdmin;
 
     public User(String username, String password, boolean isAdmin) {
         this.username = username;
@@ -18,16 +22,52 @@ public class User implements CSVConvertible{
         this.isAdmin = isAdmin;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
 
     @Override
     public String toCSV() {
         return username+","+
                 password+","+
-                isAdmin+",";
+                isAdmin;
     }
 
     @Override
     public String toString() {
         return "Nazwa użytkownika: " + username;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return isAdmin == user.isAdmin && Objects.equals(username, user.username) && Objects.equals(password, user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, password, isAdmin);
     }
 }

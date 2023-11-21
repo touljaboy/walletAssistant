@@ -11,18 +11,25 @@ public class Expense implements CSVConvertible {
     I believe that expenses arrayList will be useful in the future development. I make it public static, so that
     every class in the program can access it for the time being. I might find a better way in future development.
      */
+    //Every expense has it's associated user. In the future, when SQL is used, username will be the key value for expense
     private double value;
     private ExpenseType expenseType;
     private LocalDate date;
+    private String username;
 
-    public Expense(double value, ExpenseType expenseType, LocalDate date) {
+    public Expense(double value, ExpenseType expenseType, LocalDate date, String username) {
         this.value = value;
         this.expenseType = expenseType;
         this.date = date;
+        this.username = username;
     }
 
     public double getValue() {
         return value;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public void setValue(double value) {
@@ -50,7 +57,8 @@ public class Expense implements CSVConvertible {
     public String toCSV() {
         return value+","+
                 expenseType.toCSV()+","+
-                date;
+                date+","+
+                username;
     }
 
     @Override
