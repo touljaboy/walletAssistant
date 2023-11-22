@@ -38,7 +38,7 @@ public class ExpenseAnalyser {
     //this problem and at the same time, I believe this solution is more readible anyway. Probably there is still
     //a better way to do this, but this function is useless in the long run, so why spend so much time on it?
     public void plotAFullGraph() {
-        List<Expense> expenses = Environment.expenses.values().stream().filter(Environment.IS_CURRENT_USER).toList();
+        List<Expense> expenses = Environment.expenses.get(ExpenseAppManager.CURRENT_USER).stream().toList();
 
         List<LocalDate> uniqueDates = expenses.stream().map(Expense::getDate).distinct().toList();
         double[] values = new double[uniqueDates.size()];
@@ -84,17 +84,16 @@ public class ExpenseAnalyser {
     public double calculateAverageExpenses(ExpenseType expenseType) {
         //sum the values of a given type
         //Predicate checking if username == current user and if expensetype.id == id of expensetype of a given expense
-        Predicate<Expense> checkForUserAndExpenseTypeId = expense -> expense.
+        Predicate<Expense> isExpenseTypeId = expense -> expense.
                 getExpenseType().
-                id()==expenseType.id() && expense.getUsername()
-                .equals(ExpenseAppManager.CURRENT_USER);
+                id()==expenseType.id();
         double sum = Environment.expenses.values().stream()
-                .filter(checkForUserAndExpenseTypeId)
+                .filter(isExpenseTypeId)
                 .mapToDouble(Expense::getValue)
                 .sum();
         //count the values of a given type
         long count = Environment.expenses.values().stream()
-                .filter(checkForUserAndExpenseTypeId)
+                .filter(isExpenseTypeId)
                 .count();
         //return average
         return sum/count;

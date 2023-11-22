@@ -12,10 +12,7 @@ import pl.touljaboy.model.ExpenseType;
 import pl.touljaboy.model.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 //Class used to manage the flow of information in the app. It will be used to manage basic functionality.
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
@@ -34,8 +31,11 @@ public class ExpenseAppManager {
 
     //constructor for using the app in the terminal. Data is imported from file in constructor.
     public ExpenseAppManager() {
+
+        //TODO kiedy dane sie importują, program nie wie jeszcze jaki jest current user, dlatego expenses
+        // nie jest w stanie sie poprawnie zainicjowac (key==null) i dlatego wiekszosc funkcji ci nie dzialala
         try {
-            environment = csvFileManager.importData();
+            environment = csvFileManager.initialDataImport();
             ConsolePrinter.printLine("Import danych zakończony sukcesem");
 
         } catch (DataImportException e) {
@@ -92,8 +92,9 @@ public class ExpenseAppManager {
     }
 
     private void displayExpenses() {
-        Environment.expenses.values().stream().filter(Environment.IS_CURRENT_USER)
+        Environment.expenses.get(CURRENT_USER)
                 .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
+        //W aplikacji juz widzi, ze kazdy expense key to admin
     }
 
     //Remove a singular Expense entry. I believe it is better to first ask for a category from which an entry
@@ -213,7 +214,6 @@ public class ExpenseAppManager {
     //adds it to the expenses ArrayList
     private void addNewExpense() {
         try {
-            String username = CURRENT_USER;
             ConsolePrinter.printLine("Podaj kwotę wydatku (oddzielone kropką): ");
             double value = dataReader.readDouble();
 
@@ -234,7 +234,7 @@ public class ExpenseAppManager {
                     localDate = LocalDate.of(year,month,day);
                 }
 
-            environment.addExpense(new Expense(value,expenseType,localDate, username));
+            environment.addExpense(CURRENT_USER,new Expense(value,expenseType,localDate));
 
         } catch (InputMismatchException | NoSuchOptionException e) {
             ConsolePrinter.printError("You used the wrong datatype! Use double (f.e. 55.43) for value," +
@@ -308,6 +308,7 @@ public class ExpenseAppManager {
                 CURRENT_USER = user.getUsername();
             }
         }
+        csvFileManager.secondaryDataImport();
     }
 
     private User createUserFromInput() {
