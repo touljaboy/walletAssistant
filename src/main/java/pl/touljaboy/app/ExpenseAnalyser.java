@@ -11,9 +11,8 @@ import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 //This section will be developed to perform basic analytical functions for now, and more complex ones in the future
 public class ExpenseAnalyser {
@@ -39,18 +38,14 @@ public class ExpenseAnalyser {
     //this problem and at the same time, I believe this solution is more readible anyway. Probably there is still
     //a better way to do this, but this function is useless in the long run, so why spend so much time on it?
     public void plotAFullGraph() {
-        ArrayList<LocalDate> dates = new ArrayList<>();
+        List<Expense> expenses = Environment.expenses.values().stream().filter(Environment.IS_CURRENT_USER).toList();
 
-        for (int i = 0; i < Environment.expenses.size(); i++) {
-            dates.add(Environment.expenses.get(i).getDate());
-        }
-
-        List<LocalDate> uniqueDates = dates.stream().distinct().toList();
-        double values[] = new double[uniqueDates.size()];
+        List<LocalDate> uniqueDates = expenses.stream().map(Expense::getDate).distinct().toList();
+        double[] values = new double[uniqueDates.size()];
         for(int i=0; i<uniqueDates.size(); i++) {
             for(int j=0; j<Environment.expenses.size(); j++) {
-                if(Environment.expenses.get(j).getDate().isEqual(uniqueDates.get(i))) {
-                    values[i] += Environment.expenses.get(j).getValue();
+                if(expenses.get(j).getDate().isEqual(uniqueDates.get(i))) {
+                    values[i] += expenses.get(j).getValue();
                 }
             }
         }
@@ -88,13 +83,18 @@ public class ExpenseAnalyser {
 
     public double calculateAverageExpenses(ExpenseType expenseType) {
         //sum the values of a given type
-        double sum = Environment.expenses.stream()
-                .filter(expense -> expense.getExpenseType().id()==expenseType.id())
+        //Predicate checking if username == current user and if expensetype.id == id of expensetype of a given expense
+        Predicate<Expense> checkForUserAndExpenseTypeId = expense -> expense.
+                getExpenseType().
+                id()==expenseType.id() && expense.getUsername()
+                .equals(ExpenseAppManager.CURRENT_USER);
+        double sum = Environment.expenses.values().stream()
+                .filter(checkForUserAndExpenseTypeId)
                 .mapToDouble(Expense::getValue)
                 .sum();
         //count the values of a given type
-        long count = Environment.expenses.stream()
-                .filter(expense -> expense.getExpenseType().id()==expenseType.id())
+        long count = Environment.expenses.values().stream()
+                .filter(checkForUserAndExpenseTypeId)
                 .count();
         //return average
         return sum/count;

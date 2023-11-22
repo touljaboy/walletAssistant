@@ -1,5 +1,6 @@
 package pl.touljaboy.io;
 
+import pl.touljaboy.app.ExpenseAppManager;
 import pl.touljaboy.exception.DataExportException;
 import pl.touljaboy.exception.DataImportException;
 import pl.touljaboy.exception.NoSuchOptionException;
@@ -11,6 +12,7 @@ import pl.touljaboy.model.User;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 //It is a temporary app while using the CSV file type to store the application status. In future releases,
 //I will definetely implement a MySQL type database (well, its the sql language I've learned and it works with
@@ -107,7 +109,22 @@ public class CsvFileManager {
     }
 
     private void exportExpenses() {
-        Collection<Expense> expenses = environment.expenses;
+        Collection<Expense> expenses = new java.util.ArrayList<>(Environment.expenses.values().stream().toList());
+
+        //need to add other userdata to the list, then save it. You might believe it's stupid and you might be just right
+        //in thinking "dude, just use separate files for each user, why bother?"
+
+        //Thing is, in the future, when I run the programm as an admin user, I want to have access TO ALL OF ENTERED DATA
+        //not just my data --> thus, have access to some really epic statistics from all of the users, not just me.
+        //At least, I am trying to achieve just that in a small console developed app without a SERVER storing user data
+        //somewhere in Lithuania.
+
+        //TODO read the above paragraph and implemented the functionality that only admin can see everyone's data
+        for (User user : Environment.users) {
+            if(!user.getUsername().equals(ExpenseAppManager.CURRENT_USER)) {
+                expenses.addAll(Environment.expenses.get(user.getUsername()));
+            }
+        }
         exportToCSV(expenses, EXPENSES_FILENAME);
     }
 

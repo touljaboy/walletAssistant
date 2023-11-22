@@ -8,14 +8,21 @@ import java.util.Objects;
 //The class is used to represent single expenses and to store an ArrayList of those expenses.
 public class Expense implements CSVConvertible {
     /*
-    I believe that expenses arrayList will be useful in the future development. I make it public static, so that
-    every class in the program can access it for the time being. I might find a better way in future development.
+    I got pounded by an idea to use a hashmap for
+    storing expenses. I realise hashmap wont do, because I need multiple values for one key.
+     Found out about Guava MultiMap. E U R E K A ! Implementing in early alpha 0.11
      */
     //Every expense has it's associated user. In the future, when SQL is used, username will be the key value for expense
     private double value;
     private ExpenseType expenseType;
     private LocalDate date;
     private String username;
+
+    //I dont know if expenses need to store username String. Check it out
+    //TODO storing the username here is an easy way out, but it is temporary. Need to remove it and use the
+    // functionality of ListMultiMap. Learn how to truly access elements of an individual stored arraylist,
+    // because somehow it didnt work earlier
+
 
     public Expense(double value, ExpenseType expenseType, LocalDate date, String username) {
         this.value = value;

@@ -14,15 +14,19 @@ import pl.touljaboy.model.User;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 //Class used to manage the flow of information in the app. It will be used to manage basic functionality.
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
 public class ExpenseAppManager {
     public static String CURRENT_USER;
-    //I figure, it is logical to have a static arrayList in environment holding all expenses of all users, but here
-    //will be a copy of the arrayList. The static arraylist will then be updated and all data will be stored together.
-    //I believe this way is better, because I might add options to analyse the entire dataset of all users, for
-    //statistical purposes of course
+    //Im doing the list below, it's place might be in environment, same with info about current user, I will
+    //think about it later. Also, since I've introduced such static arralist, it might be smart to refactor the code
+    //TODO I think it will be better to store current_user and current_user_expenses in Environment class
+    //TODO after above, refactor the code in this class accordingly
+
+
     DataReader dataReader = new DataReader();
     ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
     CsvFileManager csvFileManager = new CsvFileManager();
@@ -88,9 +92,8 @@ public class ExpenseAppManager {
     }
 
     private void displayExpenses() {
-        for (Expense expense : environment.expenses) {
-            ConsolePrinter.printLine(expense.toString());
-        }
+        Environment.expenses.values().stream().filter(Environment.IS_CURRENT_USER)
+                .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
     }
 
     //Remove a singular Expense entry. I believe it is better to first ask for a category from which an entry
@@ -105,20 +108,26 @@ public class ExpenseAppManager {
 
         ConsolePrinter.printLine("Wybierz wydatek do usunięcia: ");
         //display expenses within a given expenseType
-        environment.expenses.stream()
+        Environment.expenses.get(CURRENT_USER).stream()
                 .filter(expense -> expense.getExpenseType().equals(expenseType))
-                .forEach(expense -> ConsolePrinter.printLine(environment.expenses.indexOf(expense)
+                .forEach(expense -> ConsolePrinter.printLine(Environment.expenses.
+                        get(CURRENT_USER).indexOf(expense)
                         + ": " + expense));
 
-        //remove the expense based on user input of index (remove the index from arrayList expenses)
+        //remove the expense based on user input of index
         int choice = dataReader.readInt();
 
 
         //are you sure you wish to delete the entry?
-        ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + environment.expenses.get(choice).toString() +", " +
+
+        Expense toBeRemoved = Environment.expenses.get(CURRENT_USER).get(choice);
+        ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + toBeRemoved.toString() +", " +
                 "Czy chcesz kontynuować? (Y/N)");
         if(dataReader.readLine().equalsIgnoreCase("Y"))
-            environment.expenses.remove(choice);
+            Environment.expenses.get(CURRENT_USER).remove(toBeRemoved);
+
+        //NOTE: Found out why its happening, basically multimap.get() returns a collection, not an arraylist, hence
+        //my confusion. Found out about ListMultimap
     }
 
 
@@ -140,7 +149,7 @@ public class ExpenseAppManager {
             if(dataReader.readLine().equalsIgnoreCase("Y")) {
 
                 //Remove expenses with the given category from the arraylist
-                environment.expenses.removeIf(expense -> expense.getExpenseType().equals(expenseType));
+                Environment.expenses.get(CURRENT_USER).removeIf(expense -> expense.getExpenseType().equals(expenseType));
 
                 //Remove the expenseType
                 Environment.expenseTypes.remove(expenseType);
