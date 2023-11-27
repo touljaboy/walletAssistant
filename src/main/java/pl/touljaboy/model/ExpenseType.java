@@ -11,12 +11,17 @@ import java.util.Objects;
  */
 public record ExpenseType(String description, int id) implements CSVConvertible {
 
+    @Override
+    public String description() {
+        return description;
+    }
 
     @Override
     public String toString() {
-        return "OPIS KATEGORII: " + description + ", ID: " + id;
+        return "KATEGORIA: " + description;
     }
 
+    //TODO description should have 15 characters max (due to functionality in printing expenseTypes)
     public static ExpenseType createFromInt(int choice) throws NoSuchOptionException {
         try {
             return Environment.expenseTypes.get(choice);

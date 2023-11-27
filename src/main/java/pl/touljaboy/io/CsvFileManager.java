@@ -33,6 +33,7 @@ public class CsvFileManager {
         Environment environment = new Environment();
         importExpenseTypes(environment);
         importExpenses(environment);
+        ConsolePrinter.printLine("Import danych użytkownika zakończony powodzeniem");
     }
 
     public Environment initialDataImport() {

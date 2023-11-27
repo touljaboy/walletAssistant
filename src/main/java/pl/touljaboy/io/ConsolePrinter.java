@@ -7,6 +7,10 @@ public class ConsolePrinter {
     public static void printLine(String line) {
         System.out.println(line);
     }
+    public static void printMenu(int id, String line) {
+        String format = "%2d - %-50s%n";
+        System.out.printf(format,id,line);
+    }
     public static void printError(String line) {
         System.err.println(line);
     }

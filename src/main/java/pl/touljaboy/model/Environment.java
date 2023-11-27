@@ -18,6 +18,7 @@ public class Environment {
     public static ListMultimap<String, Expense> expenses = ArrayListMultimap.create();
     public static ArrayList<ExpenseType> expenseTypes = new ArrayList<>();
     public static List<User> users = new ArrayList<>();
+    public static String CURRENT_USER;
     public void addExpense(String key, Expense expense) {
         expenses.put(key, expense);
     }

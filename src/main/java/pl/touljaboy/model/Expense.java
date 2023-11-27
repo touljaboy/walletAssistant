@@ -63,11 +63,11 @@ public class Expense implements CSVConvertible {
     }
 
 
-    //TODO presented value in toString should have 2 decimal spaces
+    //TODO I believe that each String format should be editable by the user in future release
     @Override
     public String toString() {
-        return "wartość: " + value +
-                ", typ wydatku: " + expenseType.description() +
-                ", data: " + date;
+        String format = String.format
+                ("|wartość: %10.2f | kategoria: %-15s | data: %s|", value, expenseType.description(), date);
+        return format;
     }
 }

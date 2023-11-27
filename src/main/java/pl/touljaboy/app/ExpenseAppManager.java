@@ -17,11 +17,9 @@ import java.util.InputMismatchException;
 //Class used to manage the flow of information in the app. It will be used to manage basic functionality.
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
 public class ExpenseAppManager {
-    public static String CURRENT_USER;
+
     //Im doing the list below, it's place might be in environment, same with info about current user, I will
-    //think about it later. Also, since I've introduced such static arralist, it might be smart to refactor the code
-    //TODO I think it will be better to store current_user and current_user_expenses in Environment class
-    //TODO after above, refactor the code in this class accordingly
+    //think about it later. Also, since I've introduced such static arraylist, it might be smart to refactor the code
 
 
     DataReader dataReader = new DataReader();
@@ -31,12 +29,9 @@ public class ExpenseAppManager {
 
     //constructor for using the app in the terminal. Data is imported from file in constructor.
     public ExpenseAppManager() {
-
-        //TODO kiedy dane sie importują, program nie wie jeszcze jaki jest current user, dlatego expenses
-        // nie jest w stanie sie poprawnie zainicjowac (key==null) i dlatego wiekszosc funkcji ci nie dzialala
         try {
             environment = csvFileManager.initialDataImport();
-            ConsolePrinter.printLine("Import danych zakończony sukcesem");
+            ConsolePrinter.printLine("Import użytkowników zakończony sukcesem");
 
         } catch (DataImportException e) {
             ConsolePrinter.printError(e.getMessage());
@@ -54,6 +49,7 @@ public class ExpenseAppManager {
             option = getOption();
 
             switch(option) {
+                //TODO EVERYTHING SHOULD BE PRINTED PRETTY, LIKE A TABLE
                 case EXIT -> exitProgramm();
                 case NEWENTRY -> addNewExpense();
                 case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
@@ -61,6 +57,7 @@ public class ExpenseAppManager {
                 case DISPLAYEXPENSETYPES -> displayExpenseTypes();
                 case ADDEXPENSETYPE -> addNewExpenseType();
                 case REMOVEEXPENSETYPE -> removeExpenseType();
+                //TODO fix displayed indexes in removeExpense(). Dont know why, but indexes start at f.e 3, instead of 1
                 case REMOVEEXPENSE -> removeExpense();
                 case AVERAGEEXPENSEPERTYPE -> averageExpensesInGivenCategory();
                 case PLOTAGRAPH -> expenseAnalyser.plotAFullGraph();
@@ -92,9 +89,8 @@ public class ExpenseAppManager {
     }
 
     private void displayExpenses() {
-        Environment.expenses.get(CURRENT_USER)
+        Environment.expenses.get(Environment.CURRENT_USER)
                 .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
-        //W aplikacji juz widzi, ze kazdy expense key to admin
     }
 
     //Remove a singular Expense entry. I believe it is better to first ask for a category from which an entry
@@ -109,10 +105,10 @@ public class ExpenseAppManager {
 
         ConsolePrinter.printLine("Wybierz wydatek do usunięcia: ");
         //display expenses within a given expenseType
-        Environment.expenses.get(CURRENT_USER).stream()
+        Environment.expenses.get(Environment.CURRENT_USER).stream()
                 .filter(expense -> expense.getExpenseType().equals(expenseType))
                 .forEach(expense -> ConsolePrinter.printLine(Environment.expenses.
-                        get(CURRENT_USER).indexOf(expense)
+                        get(Environment.CURRENT_USER).indexOf(expense)
                         + ": " + expense));
 
         //remove the expense based on user input of index
@@ -121,11 +117,11 @@ public class ExpenseAppManager {
 
         //are you sure you wish to delete the entry?
 
-        Expense toBeRemoved = Environment.expenses.get(CURRENT_USER).get(choice);
+        Expense toBeRemoved = Environment.expenses.get(Environment.CURRENT_USER).get(choice);
         ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + toBeRemoved.toString() +", " +
                 "Czy chcesz kontynuować? (Y/N)");
         if(dataReader.readLine().equalsIgnoreCase("Y"))
-            Environment.expenses.get(CURRENT_USER).remove(toBeRemoved);
+            Environment.expenses.get(Environment.CURRENT_USER).remove(toBeRemoved);
 
         //NOTE: Found out why its happening, basically multimap.get() returns a collection, not an arraylist, hence
         //my confusion. Found out about ListMultimap
@@ -150,7 +146,7 @@ public class ExpenseAppManager {
             if(dataReader.readLine().equalsIgnoreCase("Y")) {
 
                 //Remove expenses with the given category from the arraylist
-                Environment.expenses.get(CURRENT_USER).removeIf(expense -> expense.getExpenseType().equals(expenseType));
+                Environment.expenses.get(Environment.CURRENT_USER).removeIf(expense -> expense.getExpenseType().equals(expenseType));
 
                 //Remove the expenseType
                 Environment.expenseTypes.remove(expenseType);
@@ -173,7 +169,7 @@ public class ExpenseAppManager {
 
     private void displayExpenseTypes() {
         Environment.expenseTypes
-                .forEach(value -> ConsolePrinter.printLine(value.toString()));
+                .forEach(value -> ConsolePrinter.printMenu(value.id(),value.toString()));
     }
 
     private void addNewUser() {
@@ -194,12 +190,9 @@ public class ExpenseAppManager {
     }
 
     private void addNewExpenseType() {
-        ConsolePrinter.printLine("Podaj ID wydatku: ");
-        int id = dataReader.readInt();
-
-        ConsolePrinter.printLine("Podaj opis wydatku: ");
+        int id = Environment.expenseTypes.size();
+        ConsolePrinter.printLine("Podaj opis nowej kategorii wydatku: ");
         String desc = dataReader.readLine();
-
         Environment.expenseTypes.add(new ExpenseType(desc, id));
     }
 
@@ -234,7 +227,7 @@ public class ExpenseAppManager {
                     localDate = LocalDate.of(year,month,day);
                 }
 
-            environment.addExpense(CURRENT_USER,new Expense(value,expenseType,localDate));
+            environment.addExpense(Environment.CURRENT_USER,new Expense(value,expenseType,localDate));
 
         } catch (InputMismatchException | NoSuchOptionException e) {
             ConsolePrinter.printError("You used the wrong datatype! Use double (f.e. 55.43) for value," +
@@ -290,7 +283,7 @@ public class ExpenseAppManager {
     private void printOptions() {
         ConsolePrinter.printLine("Wybierz opcję: ");
         for(Options value : Options.values()) {
-            ConsolePrinter.printLine(value.toString());
+            ConsolePrinter.printMenu(value.getValue(),value.toString());
         }
     }
 
@@ -305,7 +298,7 @@ public class ExpenseAppManager {
             else {
                 ConsolePrinter.printLine("Witaj, " + user.getUsername());
                 isCorrectUser=true;
-                CURRENT_USER = user.getUsername();
+                Environment.CURRENT_USER = user.getUsername();
             }
         }
         csvFileManager.secondaryDataImport();
@@ -358,7 +351,7 @@ public class ExpenseAppManager {
         }
         @Override
         public String toString() {
-            return value + " - " + description;
+            return description;
         }
 
         static Options createFromInt(int choice) throws NoSuchOptionException {

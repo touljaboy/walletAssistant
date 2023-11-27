@@ -38,7 +38,7 @@ public class ExpenseAnalyser {
     //this problem and at the same time, I believe this solution is more readible anyway. Probably there is still
     //a better way to do this, but this function is useless in the long run, so why spend so much time on it?
     public void plotAFullGraph() {
-        List<Expense> expenses = Environment.expenses.get(ExpenseAppManager.CURRENT_USER).stream().toList();
+        List<Expense> expenses = Environment.expenses.get(Environment.CURRENT_USER).stream().toList();
 
         List<LocalDate> uniqueDates = expenses.stream().map(Expense::getDate).distinct().toList();
         double[] values = new double[uniqueDates.size()];
@@ -100,9 +100,9 @@ public class ExpenseAnalyser {
     }
 
     public void printAverageExpense(ExpenseType expenseType) {
-        String averageExpense = String.format("%.2f",calculateAverageExpenses(expenseType));
-        ConsolePrinter.printLine
-                (expenseType.description() + " avg = " + averageExpense);
+        String averageExpense = String
+                .format("%-15s avg = %.2f",expenseType.description(),calculateAverageExpenses(expenseType));
+        ConsolePrinter.printLine(averageExpense);
     }
 
 }
