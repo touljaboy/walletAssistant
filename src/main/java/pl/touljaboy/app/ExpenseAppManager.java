@@ -48,8 +48,9 @@ public class ExpenseAppManager {
             printOptions();
             option = getOption();
 
+            //Can't really decide if I want expenseTypes to be "public" in sense that every user shares the entered
+            //expense types or not. I believe there are pros and cons to both solutions
             switch(option) {
-                //TODO EVERYTHING SHOULD BE PRINTED PRETTY, LIKE A TABLE
                 case EXIT -> exitProgramm();
                 case NEWENTRY -> addNewExpense();
                 case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
@@ -75,16 +76,24 @@ public class ExpenseAppManager {
     }
 
     private void removeUser() {
+
         ConsolePrinter.printLine("Podaj nazwę użytkownika, którego chcesz usunąć. ");
         displayUsers();
         int choice = dataReader.readInt();
         //Ask the user if he really wants to delete the user.
-        //TODO remmeber, you cannot delete your current user
-
-        ConsolePrinter.printLine("Zamierzasz usunąć użytkownika: " + Environment.users.get(choice) +
-                ". Czy chcesz kontynuować? (Y/N)");
-        if(dataReader.readLine().equalsIgnoreCase("Y")) {
-            Environment.users.remove(choice);
+        //You cannot delete your own user and therefore you cannot end up in a situation where there are no admin users
+        if(Environment.users.get(choice).getUsername().equals(Environment.CURRENT_USER)) {
+            ConsolePrinter.printError("Błąd! Próba usunięcia aktualnie zalogowanego użytkownika");
+        } else {
+            if(Environment.getIfCurrAdmin()) {
+                ConsolePrinter.printLine("Zamierzasz usunąć użytkownika: " + Environment.users.get(choice) +
+                        ". Czy chcesz kontynuować? (Y/N)");
+                if (dataReader.readLine().equalsIgnoreCase("Y")) {
+                    Environment.users.remove(choice);
+                }
+            } else {
+                ConsolePrinter.printError("Nie masz uprawnień do usunięcia użytkownika");
+            }
         }
     }
 
@@ -173,6 +182,7 @@ public class ExpenseAppManager {
     }
 
     private void addNewUser() {
+
         ConsolePrinter.printLine("Podaj nazwę użytkownika: ");
         String username = dataReader.readLine();
 

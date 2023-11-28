@@ -17,10 +17,6 @@ public class Expense implements CSVConvertible {
     private ExpenseType expenseType;
     private LocalDate date;
 
-    //I dont know if expenses need to store username String. Check it out
-    //TODO storing the username here is an easy way out, but it is temporary. Need to remove it and use the
-    // functionality of ListMultiMap. Learn how to truly access elements of an individual stored arraylist,
-    // because somehow it didnt work earlier
 
 
     public Expense(double value, ExpenseType expenseType, LocalDate date) {

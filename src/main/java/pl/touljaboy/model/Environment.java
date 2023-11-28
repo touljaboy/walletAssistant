@@ -18,6 +18,7 @@ public class Environment {
     public static ListMultimap<String, Expense> expenses = ArrayListMultimap.create();
     public static ArrayList<ExpenseType> expenseTypes = new ArrayList<>();
     public static List<User> users = new ArrayList<>();
+    //I declare it like static values, because it looks nicer, it's almost a STATIC FINAL
     public static String CURRENT_USER;
     public void addExpense(String key, Expense expense) {
         expenses.put(key, expense);
@@ -26,17 +27,21 @@ public class Environment {
     public void addExpenseType(ExpenseType expenseType) {
         expenseTypes.add(expenseType);
     }
-    public void removeExpense(int id) {
-        boolean isIdPresentInArrayList =
-                expenseTypes.stream().filter(expenseType -> expenseType.id()==id).count()==1;
-        if(isIdPresentInArrayList)
-            expenseTypes.removeIf(expenseType -> expenseType.id()==id);
-        else ConsolePrinter.printError("Nieznaleziono elementu o podanym ID");
-    }
 
     public void addUser(User user) {
         if(users.contains(user))
             ConsolePrinter.printLine("Użytkownik o podanej nazwie już istnieje! ");
         else users.add(user);
+    }
+    public static boolean getIfCurrAdmin() {
+        //currIndex = -1, it will create an error if user is not found (which is impossible anyway), function will
+        //return an error
+        int currIndex = -1;
+        for (int i = 0; i < users.size(); i++) {
+            if(CURRENT_USER.equals(users.get(i).getUsername())) {
+               currIndex=i;
+            }
+        }
+        return users.get(currIndex).isAdmin();
     }
 }

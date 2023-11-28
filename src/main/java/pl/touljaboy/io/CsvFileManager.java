@@ -121,7 +121,6 @@ public class CsvFileManager {
         exportToCSV(expenseTypes, EXPENSETYPES_FILENAME);
     }
 
-    //TODO during export, first value should be the key of the Multimap
     private void exportExpenses() {
         ListMultimap<String, Expense> expenses = Environment.expenses;
         //need to add other userdata to the list, then save it. You might believe it's stupid and you might be just right
