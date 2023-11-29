@@ -81,13 +81,13 @@ public class ExpenseAnalyser {
 
         }
 
-    public double calculateAverageExpenses(ExpenseType expenseType) {
+    public double calculateAverageExpenses(ExpenseType expenseType, String username) {
         //sum the values of a given type
         //Predicate checking if username == current user and if expensetype.id == id of expensetype of a given expense
         Predicate<Expense> isExpenseTypeId = expense -> expense.
                 getExpenseType().
                 id()==expenseType.id();
-        double sum = Environment.expenses.values().stream()
+        double sum = Environment.expenses.get(username).stream()
                 .filter(isExpenseTypeId)
                 .mapToDouble(Expense::getValue)
                 .sum();
@@ -99,9 +99,9 @@ public class ExpenseAnalyser {
         return sum/count;
     }
 
-    public void printAverageExpense(ExpenseType expenseType) {
+    public void printAverageExpense(ExpenseType expenseType, String username) {
         String averageExpense = String
-                .format("%-15s avg = %.2f",expenseType.description(),calculateAverageExpenses(expenseType));
+                .format("%-15s avg = %.2f",expenseType.description(),calculateAverageExpenses(expenseType, username));
         ConsolePrinter.printLine(averageExpense);
     }
 

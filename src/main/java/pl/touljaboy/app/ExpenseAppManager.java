@@ -11,6 +11,7 @@ import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
 import pl.touljaboy.model.User;
 
+import java.io.Console;
 import java.time.LocalDate;
 import java.util.InputMismatchException;
 
@@ -61,6 +62,7 @@ public class ExpenseAppManager {
                 //TODO fix displayed indexes in removeExpense(). Dont know why, but indexes start at f.e 3, instead of 1
                 case REMOVEEXPENSE -> removeExpense();
                 case AVERAGEEXPENSEPERTYPE -> averageExpensesInGivenCategory();
+                //TODO plot a graph for a user of choice if you are admin
                 case PLOTAGRAPH -> expenseAnalyser.plotAFullGraph();
                 case REMOVEUSER -> removeUser();
                 case DISPLAYALLEXPENSES -> displayExpenses();
@@ -98,8 +100,28 @@ public class ExpenseAppManager {
     }
 
     private void displayExpenses() {
-        Environment.expenses.get(Environment.CURRENT_USER)
-                .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
+        if(!Environment.getIfCurrAdmin()) {
+            Environment.expenses.get(Environment.CURRENT_USER)
+                    .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
+        } else {
+            ConsolePrinter.printLine("0 - Wyświetl wszystki wydatki każdego z użytkowników");
+            ConsolePrinter.printLine("1 - Wyświetl wydatki tylko konkretnego użytkownika");
+            int choice = dataReader.readInt();
+            if(choice==0) {
+                for (User user : Environment.users) {
+                    Environment.expenses.get(user.getUsername())
+                            .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
+                }
+            } else if (choice==1) {
+                ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
+                displayUsers();
+                String usernameKey = dataReader.readLine();
+                Environment.expenses.get(usernameKey)
+                        .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
+            } else {
+                ConsolePrinter.printError("Nieznana opcja");
+            }
+        }
     }
 
     //Remove a singular Expense entry. I believe it is better to first ask for a category from which an entry
@@ -171,7 +193,7 @@ public class ExpenseAppManager {
             displayExpenseTypes();
             expenseType = getExpenseType();
 
-            expenseAnalyser.printAverageExpense(expenseType);
+            expenseAnalyser.printAverageExpense(expenseType, Environment.CURRENT_USER);
     }
 
 
@@ -207,8 +229,33 @@ public class ExpenseAppManager {
     }
 
     private void displayAverageExpenses() {
-        for (ExpenseType expenseType : Environment.expenseTypes)
-            expenseAnalyser.printAverageExpense(expenseType);
+        if(!Environment.getIfCurrAdmin()) {
+            for (ExpenseType expenseType : Environment.expenseTypes)
+                expenseAnalyser.printAverageExpense(expenseType, Environment.CURRENT_USER);
+        } else {
+            ConsolePrinter.printLine("0 - Uwzględnij dane wszystkich użytkowników");
+            ConsolePrinter.printLine("1 - Wyświetl średnie wydatki danego użytkownika");
+            int choice = dataReader.readInt();
+            if(choice==0) {
+                //TODO I believe this should be in ExpenseAnalyser
+                for (User user : Environment.users) {
+                    ConsolePrinter.printLine("Średnie wydatki użytkownika: "+ user.getUsername());
+                    for (ExpenseType expenseType : Environment.expenseTypes) {
+                        expenseAnalyser.printAverageExpense(expenseType,user.getUsername());
+                    }
+                }
+            } else if(choice==1) {
+                ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
+                displayUsers();
+                String usernameKey = dataReader.readLine();
+
+                for (ExpenseType expenseType : Environment.expenseTypes)
+                    expenseAnalyser.printAverageExpense(expenseType, usernameKey);
+            } else {
+                ConsolePrinter.printError("Nieznana opcja");
+            }
+
+        }
     }
 
 
@@ -338,7 +385,7 @@ public class ExpenseAppManager {
         REMOVEEXPENSETYPE(5,"Usuń daną kategorię wydaktu"),
 
         REMOVEUSER(6, "Usuń użytkownika"),
-        DISPLAYALLEXPENSES(7, "Wyświetl wszystkie wydatki"),
+        DISPLAYALLEXPENSES(7, "Wyświetl wydatki"),
         DISPLAYEXPENSETYPES(8,"Wyświetl dostępne kategorie wydatków"),
         DISPLAYUSERS(9, "Wyświetl nazwy użytkowników"),
         DISPLAYAVERAGEEXPENSES(10, "Wyświetl dotychczasowe średnie wydatki przez wszystkie kategorie"),
