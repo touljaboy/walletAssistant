@@ -12,7 +12,6 @@ public class Expense implements CSVConvertible {
     storing expenses. I realise hashmap wont do, because I need multiple values for one key.
      Found out about Guava MultiMap. E U R E K A ! Implementing in early alpha 0.11
      */
-    //Every expense has it's associated user. In the future, when SQL is used, username will be the key value for expense
     private double value;
     private ExpenseType expenseType;
     private LocalDate date;

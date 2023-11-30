@@ -9,9 +9,7 @@ public class ExpenseManagerApp {
         expenseAppManager.userLoginLoop();
         expenseAppManager.controlLoop();
         //TODO recently, you have made some changes to the code and it aint so pretty now..Try and fix it please!
-
         //TODO after implementing the user logging and stuff functionality, we are officially in final alpha
-        //TODO after creating the final alpha version, begin the testing process
-        //TODO after testing, release the final stable alpha, then begin beta - GUI
+        //TODO release the final stable alpha, then begin beta - GUI and testing
     }
 }

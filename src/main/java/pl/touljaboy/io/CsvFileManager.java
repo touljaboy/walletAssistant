@@ -131,7 +131,6 @@ public class CsvFileManager {
         //At least, I am trying to achieve just that in a small console developed app without a SERVER storing user data
         //somewhere in Lithuania.
 
-        //TODO read the above paragraph and implemented the functionality that only admin can see everyone's data
         exportToCSV(expenses, EXPENSES_FILENAME);
     }
 

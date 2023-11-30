@@ -14,6 +14,8 @@ import pl.touljaboy.model.User;
 import java.io.Console;
 import java.time.LocalDate;
 import java.util.InputMismatchException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 //Class used to manage the flow of information in the app. It will be used to manage basic functionality.
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
@@ -127,36 +129,56 @@ public class ExpenseAppManager {
     //Remove a singular Expense entry. I believe it is better to first ask for a category from which an entry
     //will be deleted, and only then to ask which entry to delete. It would be problematic to find a
     //singular entry to delete if there are like 50000 entries, right?
+
     private void removeExpense() {
-        ConsolePrinter.printLine("Podaj kategorię, w której chcesz usunąć wydatek: ");
-        displayExpenseTypes();
-
-        //ExpenseType chosen by user by its id
-        ExpenseType expenseType = getExpenseType();
-
-        ConsolePrinter.printLine("Wybierz wydatek do usunięcia: ");
-        //display expenses within a given expenseType
-        Environment.expenses.get(Environment.CURRENT_USER).stream()
-                .filter(expense -> expense.getExpenseType().equals(expenseType))
-                .forEach(expense -> ConsolePrinter.printLine(Environment.expenses.
-                        get(Environment.CURRENT_USER).indexOf(expense)
-                        + ": " + expense));
-
-        //remove the expense based on user input of index
-        int choice = dataReader.readInt();
-
-
-        //are you sure you wish to delete the entry?
-
-        Expense toBeRemoved = Environment.expenses.get(Environment.CURRENT_USER).get(choice);
-        ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + toBeRemoved.toString() +", " +
-                "Czy chcesz kontynuować? (Y/N)");
-        if(dataReader.readLine().equalsIgnoreCase("Y"))
-            Environment.expenses.get(Environment.CURRENT_USER).remove(toBeRemoved);
-
-        //NOTE: Found out why its happening, basically multimap.get() returns a collection, not an arraylist, hence
-        //my confusion. Found out about ListMultimap
+        if(!Environment.getIfCurrAdmin()) {
+            removeExpense(Environment.CURRENT_USER);
+        } else {
+            ConsolePrinter.printLine("Wybierz użytkownika, u którego chcesz usunąć wydatek (wpisz jego nazwe): ");
+            displayUsers();
+            String usernameChoice = dataReader.readLine();
+            removeExpense(usernameChoice);
+        }
     }
+    private void removeExpense(String username) {
+        //If not an admin, then you can only delete your expenses
+            ConsolePrinter.printLine("Podaj kategorię, w której chcesz usunąć wydatek: ");
+            displayExpenseTypes();
+
+            //ExpenseType chosen by user by its id
+            ExpenseType expenseType = getExpenseType();
+
+        List<Expense> expensesWithinTheCategory = Environment.expenses.get(username).stream()
+                .filter(expense -> expense.getExpenseType().equals(expenseType)).toList();
+
+        if(expensesWithinTheCategory.isEmpty()) {
+            ConsolePrinter.printLine("Brak wydatków w danej kategorii");
+        } else {
+            ConsolePrinter.printLine("Wybierz wydatek do usunięcia: ");
+            //display expenses within a given expenseType
+            expensesWithinTheCategory.forEach(expense -> ConsolePrinter.printLine(Environment.expenses.
+                    get(username).indexOf(expense)
+                    + ": " + expense));
+            //remove the expense based on user input of index
+            int choice = dataReader.readInt();
+
+            //are you sure you wish to delete the entry?
+            //Alpha 1.01 note - found a bug, where you can delete expenses outside the chosen category.
+            try {
+                Expense toBeRemoved = Environment.expenses.get(username).get(choice);
+                if (expensesWithinTheCategory.contains(toBeRemoved)) {
+                    ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + toBeRemoved.toString() + ", " +
+                            "Czy chcesz kontynuować? (Y/N)");
+                    if (dataReader.readLine().equalsIgnoreCase("Y"))
+                        Environment.expenses.get(username).remove(toBeRemoved);
+                } else ConsolePrinter.printLine("Brak wydatku o podanym id w podanej kategorii");
+            } catch(IndexOutOfBoundsException e){
+                ConsolePrinter.printLine("Nieznaleziono wydatku o zadanym id");
+            }
+        }
+    }
+
+
 
 
     //Remove an entire expenseType together with associated expenses

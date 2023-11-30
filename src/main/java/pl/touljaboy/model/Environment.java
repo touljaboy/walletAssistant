@@ -13,8 +13,6 @@ import java.util.function.Predicate;
 //AND ALSO SINCE early alpha 0.11 - to store MultiMap of expenses
 
 public class Environment {
-    //Predicate to check if expense.getUser equals CURRENT_USER. Do not know if it will function well for now, but
-    //TODO make it function well in all cases (see calculate average in expenseanalyser)
     public static ListMultimap<String, Expense> expenses = ArrayListMultimap.create();
     public static ArrayList<ExpenseType> expenseTypes = new ArrayList<>();
     public static List<User> users = new ArrayList<>();
