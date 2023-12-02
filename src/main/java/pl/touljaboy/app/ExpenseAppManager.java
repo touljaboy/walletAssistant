@@ -250,6 +250,9 @@ public class ExpenseAppManager {
         Environment.expenseTypes.add(new ExpenseType(desc, id));
     }
 
+    //TODO you should be able to restrict yourself to given time period when calculating average expenses
+    // (default should be the current month)
+
     private void displayAverageExpenses() {
         if(!Environment.getIfCurrAdmin()) {
             for (ExpenseType expenseType : Environment.expenseTypes)
