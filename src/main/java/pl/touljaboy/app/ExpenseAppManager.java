@@ -102,6 +102,80 @@ public class ExpenseAppManager {
     }
 
     private void displayExpenses() {
+        //Display expenses from a given time period or all of them at once
+        ConsolePrinter.printLine("0 - Wyświetl wszystkie wydatki");
+        ConsolePrinter.printLine("1 - Wyświetl wydatki z danego przedziału czasu");
+        int timePeriodChoice = dataReader.readInt();
+
+        switch(timePeriodChoice) {
+            case 0 ->displayAllExpenses();
+            case 1 ->displayTimePeriodExpenses();
+            default -> ConsolePrinter.printError("Nieznana Opcja");
+        }
+
+    }
+
+    private void displayTimePeriodExpenses() {
+        ConsolePrinter.printLine("Określ datę początkową w formacie yyyy-mm-dd");
+        String start = dataReader.readLine();
+        ConsolePrinter.printLine("Określ datę końcową w formacie yyyy-mm-dd");
+        String finish = dataReader.readLine();
+        LocalDate endDate = LocalDate.parse(finish);
+
+        //TODO see, code repetition in both functions, next time really focus on cleaning this code
+        if(!Environment.getIfCurrAdmin()) {
+            //Iterating through days from start to finish
+            //TODO expenses should be sorting themselfes by default when adding a new one
+            for(LocalDate startDate = LocalDate.parse(start);
+                startDate.isBefore(endDate); startDate = startDate.plusDays(1)) {
+                for(int j=0;j<Environment.expenses.get(Environment.CURRENT_USER).size();j++) {
+                    if(Environment.expenses.get(Environment.CURRENT_USER)
+                            .get(j).getDate().toString().equals(startDate.toString())) {
+                        ConsolePrinter.printLine(Environment.expenses.get(Environment.CURRENT_USER).get(j).toString());
+                    }
+                }
+
+            }
+//            Environment.expenses.get(Environment.CURRENT_USER)
+//                    .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
+        } else {
+            ConsolePrinter.printLine("0 - Uwzględnij każdego z użytkowników");
+            ConsolePrinter.printLine("1 - Uwzględnij tylko konkretnego użytkownika");
+            int choice = dataReader.readInt();
+            if(choice==0) {
+                for (User user : Environment.users) {
+                    //TODO refactor this repetition
+                    for(LocalDate startDate = LocalDate.parse(start);
+                        startDate.isBefore(endDate); startDate = startDate.plusDays(1)) {
+                        for(int j=0;j<Environment.expenses.get(user.getUsername()).size();j++) {
+                            if(Environment.expenses.get(user.getUsername()).get(j)
+                                    .getDate().toString().equals(startDate.toString())) {
+                                ConsolePrinter.printLine(Environment.expenses.get(user.getUsername()).get(j).toString());
+                            }
+                        }
+                    }
+                }
+            } else if (choice==1) {
+                ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
+                displayUsers();
+                String usernameKey = dataReader.readLine();
+                //TODO code repetition again, but have no time to fix now, gotta commit
+                for(LocalDate startDate = LocalDate.parse(start);
+                    startDate.isBefore(endDate); startDate = startDate.plusDays(1)) {
+                    for(int j=0;j<Environment.expenses.get(usernameKey).size();j++) {
+                        if(Environment.expenses.get(usernameKey).get(j)
+                                .getDate().toString().equals(startDate.toString())) {
+                            ConsolePrinter.printLine(Environment.expenses.get(usernameKey).get(j).toString());
+                        }
+                    }
+                }
+            } else {
+                ConsolePrinter.printError("Nieznana opcja");
+            }
+        }
+    }
+
+    private void displayAllExpenses() {
         if(!Environment.getIfCurrAdmin()) {
             Environment.expenses.get(Environment.CURRENT_USER)
                     .forEach(expense -> ConsolePrinter.printLine(expense.toString()));

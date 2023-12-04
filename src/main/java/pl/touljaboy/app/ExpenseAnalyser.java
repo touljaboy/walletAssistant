@@ -28,7 +28,7 @@ public class ExpenseAnalyser {
 
     //For now, plot a graph of ALL the data from the ArrayList Expense.expenses
     //TODO plot a graph for specific data range (using Date)
-
+    //TODO yearly report of average expenses
     //Okay, this function looks UGLY as HELL right now. As I've said, I will later use JavaFX,
     // but who knows, maybe some of the things I've learned here will be useful!
     //Note from version 0.10 alpha development: I found a bug - values of expenses of the same value

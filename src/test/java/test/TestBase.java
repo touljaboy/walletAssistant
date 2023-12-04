@@ -20,8 +20,9 @@ public class TestBase {
     public static final ExpenseType sample1 = new ExpenseType("ENERGY",99);
     public static final ExpenseType sample2 = new ExpenseType("PAVEMENT", 98);
 
+    //TODO make allure report work properly
     @Step("Adding sample user and sample data")
-    @BeforeMethod(groups = {"current"})
+    @BeforeMethod()
     public void beforeTest(){
         //Add test user
         Environment.users.add(user);
