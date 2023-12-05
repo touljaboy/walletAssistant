@@ -13,6 +13,7 @@ import pl.touljaboy.model.User;
 
 import java.io.Console;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public class ExpenseAppManager {
     //Im doing the list below, it's place might be in environment, same with info about current user, I will
     //think about it later. Also, since I've introduced such static arraylist, it might be smart to refactor the code
 
-
+    //TODO divide the code here into segments. Main functions should come first, then the secondairy functions
     DataReader dataReader = new DataReader();
     ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
     CsvFileManager csvFileManager = new CsvFileManager();
@@ -80,7 +81,6 @@ public class ExpenseAppManager {
     }
 
     private void removeUser() {
-
         ConsolePrinter.printLine("Podaj nazwę użytkownika, którego chcesz usunąć. ");
         displayUsers();
         int choice = dataReader.readInt();
@@ -116,88 +116,81 @@ public class ExpenseAppManager {
     }
 
     private void displayTimePeriodExpenses() {
-        ConsolePrinter.printLine("Określ datę początkową w formacie yyyy-mm-dd");
-        String start = dataReader.readLine();
-        ConsolePrinter.printLine("Określ datę końcową w formacie yyyy-mm-dd");
-        String finish = dataReader.readLine();
-        LocalDate endDate = LocalDate.parse(finish);
+        try {
+            ConsolePrinter.printLine("Określ datę początkową w formacie yyyy-mm-dd");
+            LocalDate startDate = getDate();
+            ConsolePrinter.printLine("Określ datę końcową w formacie yyyy-mm-dd");
+            LocalDate endDate = getDate();
 
-        //TODO see, code repetition in both functions, next time really focus on cleaning this code
-        if(!Environment.getIfCurrAdmin()) {
-            //Iterating through days from start to finish
-            //TODO expenses should be sorting themselfes by default when adding a new one
-            for(LocalDate startDate = LocalDate.parse(start);
-                startDate.isBefore(endDate); startDate = startDate.plusDays(1)) {
-                for(int j=0;j<Environment.expenses.get(Environment.CURRENT_USER).size();j++) {
-                    if(Environment.expenses.get(Environment.CURRENT_USER)
-                            .get(j).getDate().toString().equals(startDate.toString())) {
-                        ConsolePrinter.printLine(Environment.expenses.get(Environment.CURRENT_USER).get(j).toString());
-                    }
-                }
-
-            }
-//            Environment.expenses.get(Environment.CURRENT_USER)
-//                    .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
-        } else {
-            ConsolePrinter.printLine("0 - Uwzględnij każdego z użytkowników");
-            ConsolePrinter.printLine("1 - Uwzględnij tylko konkretnego użytkownika");
-            int choice = dataReader.readInt();
-            if(choice==0) {
-                for (User user : Environment.users) {
-                    //TODO refactor this repetition
-                    for(LocalDate startDate = LocalDate.parse(start);
-                        startDate.isBefore(endDate); startDate = startDate.plusDays(1)) {
-                        for(int j=0;j<Environment.expenses.get(user.getUsername()).size();j++) {
-                            if(Environment.expenses.get(user.getUsername()).get(j)
-                                    .getDate().toString().equals(startDate.toString())) {
-                                ConsolePrinter.printLine(Environment.expenses.get(user.getUsername()).get(j).toString());
-                            }
-                        }
-                    }
-                }
-            } else if (choice==1) {
-                ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
-                displayUsers();
-                String usernameKey = dataReader.readLine();
-                //TODO code repetition again, but have no time to fix now, gotta commit
-                for(LocalDate startDate = LocalDate.parse(start);
-                    startDate.isBefore(endDate); startDate = startDate.plusDays(1)) {
-                    for(int j=0;j<Environment.expenses.get(usernameKey).size();j++) {
-                        if(Environment.expenses.get(usernameKey).get(j)
-                                .getDate().toString().equals(startDate.toString())) {
-                            ConsolePrinter.printLine(Environment.expenses.get(usernameKey).get(j).toString());
-                        }
-                    }
-                }
+            if (!Environment.getIfCurrAdmin()) {
+                //TODO expenses should be sorting themselfes by default when adding a new one
+                printDateExpensesPerUsername(startDate, endDate, Environment.CURRENT_USER);
             } else {
-                ConsolePrinter.printError("Nieznana opcja");
+                int choice = allUsersOrOneUserDisplayExpensesChoice(); //0-->all, 1-->one
+                if (choice == 0) {
+                    for (User user : Environment.users) {
+                        printDateExpensesPerUsername(startDate, endDate, user.getUsername());
+                    }
+                } else if (choice == 1) {
+                    printDateExpensesPerUsername(startDate, endDate, getUsernameKey());
+
+                } else {
+                    ConsolePrinter.printError("Nieznana opcja");
+                }
             }
+        } catch (DateTimeParseException e) {
+            ConsolePrinter.printError("Podano nieprawidłowy format daty");
         }
     }
+
+
 
     private void displayAllExpenses() {
         if(!Environment.getIfCurrAdmin()) {
             Environment.expenses.get(Environment.CURRENT_USER)
                     .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
         } else {
-            ConsolePrinter.printLine("0 - Wyświetl wszystki wydatki każdego z użytkowników");
-            ConsolePrinter.printLine("1 - Wyświetl wydatki tylko konkretnego użytkownika");
-            int choice = dataReader.readInt();
+            int choice = allUsersOrOneUserDisplayExpensesChoice(); //0->all 1-->one
             if(choice==0) {
                 for (User user : Environment.users) {
                     Environment.expenses.get(user.getUsername())
                             .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
                 }
             } else if (choice==1) {
-                ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
-                displayUsers();
-                String usernameKey = dataReader.readLine();
-                Environment.expenses.get(usernameKey)
+                //TODO dont know if this will work
+                Environment.expenses.get(getUsernameKey())
                         .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
             } else {
                 ConsolePrinter.printError("Nieznana opcja");
             }
         }
+    }
+
+    private LocalDate getDate() throws DateTimeParseException {
+        String date = dataReader.readLine();
+        return LocalDate.parse(date);
+    }
+    //Function used to print an expense based on user and date period parameters
+    private void printDateExpensesPerUsername(LocalDate startDate, LocalDate endDate, String user) {
+        while(startDate.isBefore(endDate)) {
+            for (int j = 0; j < Environment.expenses.get(user).size(); j++) {
+                if (Environment.expenses.get(user).get(j)
+                        .getDate().equals(startDate)) {
+                    ConsolePrinter.printLine(Environment.expenses.get(user).get(j).toString());
+                }
+            }
+            startDate = startDate.plusDays(1);
+        }
+    }
+    private String getUsernameKey() {
+        ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
+        displayUsers();
+        return dataReader.readLine();
+    }
+    private int allUsersOrOneUserDisplayExpensesChoice() {
+        ConsolePrinter.printLine("0 - Wyświetl wszystki wydatki każdego z użytkowników");
+        ConsolePrinter.printLine("1 - Wyświetl wydatki tylko konkretnego użytkownika");
+        return dataReader.readInt();
     }
 
     //Remove a singular Expense entry. I believe it is better to first ask for a category from which an entry
@@ -208,10 +201,7 @@ public class ExpenseAppManager {
         if(!Environment.getIfCurrAdmin()) {
             removeExpense(Environment.CURRENT_USER);
         } else {
-            ConsolePrinter.printLine("Wybierz użytkownika, u którego chcesz usunąć wydatek (wpisz jego nazwe): ");
-            displayUsers();
-            String usernameChoice = dataReader.readLine();
-            removeExpense(usernameChoice);
+            removeExpense(getUsernameKey());
         }
     }
     private void removeExpense(String username) {
@@ -344,9 +334,7 @@ public class ExpenseAppManager {
                     }
                 }
             } else if(choice==1) {
-                ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
-                displayUsers();
-                String usernameKey = dataReader.readLine();
+                String usernameKey = getUsernameKey();
 
                 for (ExpenseType expenseType : Environment.expenseTypes)
                     expenseAnalyser.printAverageExpense(expenseType, usernameKey);
