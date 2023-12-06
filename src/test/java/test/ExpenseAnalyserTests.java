@@ -19,8 +19,10 @@ public class ExpenseAnalyserTests extends TestBase{
         Assert.assertTrue(Environment.users.contains(user));
 
         ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
-        double average1 = expenseAnalyser.calculateAverageExpenses(TestBase.sample1, TestBase.user.getUsername());
-        double average2 = expenseAnalyser.calculateAverageExpenses(TestBase.sample2, TestBase.user.getUsername());
+        double average1 = expenseAnalyser.calculateAverageExpenses(Environment.expenses.get(TestBase.user.getUsername())
+                ,TestBase.sample1, TestBase.user.getUsername());
+        double average2 = expenseAnalyser.calculateAverageExpenses(Environment.expenses.get(TestBase.user.getUsername())
+                ,TestBase.sample2, TestBase.user.getUsername());
 
         double expected1 = (1380.77+777.11+999.15+333.22)/4;
         double expected2 = (200+215+420.1+606.27)/4;
@@ -28,4 +30,6 @@ public class ExpenseAnalyserTests extends TestBase{
         Assert.assertEquals(average1,expected1);
         Assert.assertEquals(average2,expected2);
     }
+    //TODO you added new functionalities with date time periods - test them (regarding averageExpenses in particular)
+
 }

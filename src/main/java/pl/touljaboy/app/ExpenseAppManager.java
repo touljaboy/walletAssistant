@@ -11,12 +11,11 @@ import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
 import pl.touljaboy.model.User;
 
-import java.io.Console;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 //Class used to manage the flow of information in the app. It will be used to manage basic functionality.
 //Classes will most likely be (idk yet) static so they can be used without creating the object of the class.
@@ -25,7 +24,6 @@ public class ExpenseAppManager {
     //Im doing the list below, it's place might be in environment, same with info about current user, I will
     //think about it later. Also, since I've introduced such static arraylist, it might be smart to refactor the code
 
-    //TODO divide the code here into segments. Main functions should come first, then the secondairy functions
     DataReader dataReader = new DataReader();
     ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
     CsvFileManager csvFileManager = new CsvFileManager();
@@ -55,7 +53,7 @@ public class ExpenseAppManager {
             //Can't really decide if I want expenseTypes to be "public" in sense that every user shares the entered
             //expense types or not. I believe there are pros and cons to both solutions
             switch(option) {
-                case EXIT -> exitProgramm();
+                case EXIT -> exitProgram();
                 case NEWENTRY -> addNewExpense();
                 case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
                 case ADDUSER -> addNewUser();
@@ -73,13 +71,182 @@ public class ExpenseAppManager {
             }
         } while(option != Options.EXIT);
     }
+    private void exitProgram() {
+        try {
+            csvFileManager.exportData();
+            ConsolePrinter.printLine("Export danych do pliku zakończony powodzeniem");
+        } catch (DataExportException e) {
+            ConsolePrinter.printError(e.getMessage());
+        }
+        ConsolePrinter.printLine("Koniec programu ");
+        dataReader.closeRead();
+    }
+    //This function speaks for itself - it reads information from appUser and creates a new Expense and
+    //adds it to the expenses ArrayList
+    private void addNewExpense() {
+        try {
+            ConsolePrinter.printLine("Podaj kwotę wydatku (oddzielone kropką): ");
+            double value = dataReader.readDouble();
+            displayExpenseTypes();
+            ConsolePrinter.printLine("Podaj ID kategorii wydatku: ");
+            ExpenseType expenseType = ExpenseType.createFromInt(dataReader.readInt());
 
+            ConsolePrinter.printLine("Czy wydatek poniosłeś dzisiaj? Y/N");
+            LocalDate localDate = LocalDate.now();
+
+            String decision = dataReader.readLine();
+            if(decision.equals("N")){
+                localDate = createDateFromInput();
+            }
+
+            environment.addExpense(Environment.CURRENT_USER,new Expense(value,expenseType,localDate));
+
+        } catch (InputMismatchException | NoSuchOptionException e) {
+            ConsolePrinter.printError("Użyto błędnego typu danych. Wartość wydatku powinna być oddzielona kropką" +
+                    ",np 55.43; id kategorii wydatku jest liczbą naturalną (upewnij się, że kategoria o danym id" +
+                    "istnieje), w przypadku daty posługuj się wartościami naturalnymi zgodnymi z kalendarzem");
+        }
+    }
+    //TODO you should be able to restrict yourself to given time period when calculating average expenses
+    // (default should be the current month)
+
+    private void displayAverageExpenses() {
+        ConsolePrinter.printLine("0 - Wyświetl całościowe średnie wydatki");
+        ConsolePrinter.printLine("1 - Wyświetl średnie wydatki dla danego przedziału czasu");
+        int timePeriodChoice = dataReader.readInt();
+
+        switch(timePeriodChoice) {
+            case 0 ->displayAllAverageExpenses();
+            case 1 ->displayTimePeriodAverageExpenses();
+            default -> ConsolePrinter.printError("Nieznana Opcja");
+        }
+    }
+    //TODO maybe write a function like doInTimePeriod(startDate,finishDate) and exec a method using lambda expressions
+    private void displayTimePeriodAverageExpenses() {
+        try {
+            ConsolePrinter.printLine("Określ datę początkową w formacie yyyy-mm-dd");
+            LocalDate startDate = getDate();
+            ConsolePrinter.printLine("Określ datę końcową w formacie yyyy-mm-dd");
+            LocalDate endDate = getDate();
+
+            if (!Environment.getIfCurrAdmin()) {
+                printDateAverageExpensesPerUsername(startDate, endDate, Environment.CURRENT_USER);
+            } else {
+                int choice = allUsersOrOneUserDisplayExpensesChoice(); //0-->all, 1-->one
+                if (choice == 0) {
+                    for (User user : Environment.users) {
+                        printDateAverageExpensesPerUsername(startDate, endDate, user.getUsername());
+                    }
+                } else if (choice == 1) {
+                    printDateAverageExpensesPerUsername(startDate, endDate, getUsernameKey());
+
+                } else {
+                    ConsolePrinter.printError("Nieznana opcja");
+                }
+            }
+        } catch (DateTimeParseException e) {
+            ConsolePrinter.printError("Podano nieprawidłowy format daty");
+        }
+    }
+
+    private void displayAllAverageExpenses() {
+        if(!Environment.getIfCurrAdmin()) {
+            for (ExpenseType expenseType : Environment.expenseTypes)
+                expenseAnalyser.printAverageExpense(Environment.expenses.get(Environment.CURRENT_USER)
+                        ,expenseType, Environment.CURRENT_USER);
+        } else {
+            ConsolePrinter.printLine("0 - Uwzględnij dane wszystkich użytkowników");
+            ConsolePrinter.printLine("1 - Wyświetl średnie wydatki danego użytkownika");
+            int choice = dataReader.readInt();
+            if(choice==0) {
+                //I could add this for loop in ExpenseAnalyser, but I cant find the reason why, its more readable now
+                for (User user : Environment.users) {
+                    expenseAnalyser.printAverageExpensesForUser
+                            (Environment.expenses.get(user.getUsername()),user.getUsername());
+                }
+            } else if(choice==1) {
+                String usernameKey = getUsernameKey();
+                expenseAnalyser.printAverageExpensesForUser(Environment.expenses.get(usernameKey),usernameKey);
+            } else {
+                ConsolePrinter.printError("Nieznana opcja");
+            }
+
+        }
+    }
+
+    private void addNewUser() {
+
+        ConsolePrinter.printLine("Podaj nazwę użytkownika: ");
+        String username = dataReader.readLine();
+
+        ConsolePrinter.printLine("Podaj hasło: ");
+        String password = dataReader.readLine();
+
+        ConsolePrinter.printLine("Czy użytkownik jest adminem (Y/N)? ");
+        String decision = dataReader.readLine().toLowerCase();
+        switch(decision) {
+            case "y" -> environment.addUser(new User(username,password,true));
+            case "n" -> environment.addUser(new User(username,password,false));
+            default -> ConsolePrinter.printError("Podano nieznaną komendę");
+        }
+    }
+    private void displayExpenseTypes() {
+        Environment.expenseTypes
+                .forEach(value -> ConsolePrinter.printMenu(value.id(),value.toString()));
+    }
+    private void addNewExpenseType() {
+        int id = Environment.expenseTypes.size();
+        ConsolePrinter.printLine("Podaj opis nowej kategorii wydatku: ");
+        String desc = dataReader.readLine();
+        Environment.expenseTypes.add(new ExpenseType(desc, id));
+    }
+    private void removeExpenseType() {
+        //are you sure you wish to continue?
+        ConsolePrinter.printLine("Usunięcie danego typu wydatku spowoduje usunięcie wszystkich wydatków danej" +
+                "kategorii. Czy chcesz kontynuować? (Y/N)");
+        if(dataReader.readLine().equalsIgnoreCase("Y")) {
+            ConsolePrinter.printLine("Wybierz kategorię do usunięcia: ");
+            displayExpenseTypes();
+
+            //ExpenseType chosen by user by its id
+            ExpenseType expenseType = getExpenseType();
+
+            //are you really truly sure you wish to continue?
+            ConsolePrinter.printLine("UWAGA! Zamierzasz usunąć kategorię "+expenseType.description() +" oraz całą" +
+                    "jej zawartość. Czy chcesz kontynuować? (Y/N)");
+            if(dataReader.readLine().equalsIgnoreCase("Y")) {
+
+                //Remove expenses with the given category from the arraylist
+                Environment.expenses.get(Environment.CURRENT_USER)
+                        .removeIf(expense -> expense.getExpenseType().equals(expenseType));
+
+                //Remove the expenseType
+                Environment.expenseTypes.remove(expenseType);
+            }
+        }
+    }
+    private void removeExpense() {
+        if(!Environment.getIfCurrAdmin()) {
+            removeExpense(Environment.CURRENT_USER);
+        } else {
+            removeExpense(getUsernameKey());
+        }
+    }
+
+    private void averageExpensesInGivenCategory() {
+        ExpenseType expenseType;
+        ConsolePrinter.printLine("Wybierz kategorię: ");
+        displayExpenseTypes();
+        expenseType = getExpenseType();
+
+        expenseAnalyser.printAverageExpense(Environment.expenses.get(Environment.CURRENT_USER)
+                , expenseType, Environment.CURRENT_USER);
+    }
     private void displayUsers() {
         for (int i = 0; i < Environment.users.size(); i++) {
             ConsolePrinter.printLine(i+": "+Environment.users.get(i));
         }
     }
-
     private void removeUser() {
         ConsolePrinter.printLine("Podaj nazwę użytkownika, którego chcesz usunąć. ");
         displayUsers();
@@ -112,9 +279,17 @@ public class ExpenseAppManager {
             case 1 ->displayTimePeriodExpenses();
             default -> ConsolePrinter.printError("Nieznana Opcja");
         }
-
     }
 
+    private LocalDate createDateFromInput() {
+        ConsolePrinter.printLine("Podaj rok: ");
+        int year = dataReader.readInt();
+        ConsolePrinter.printLine("Podaj numer miesiąca: ");
+        int month = dataReader.readInt();
+        ConsolePrinter.printLine("Podaj dzień: ");
+        int day = dataReader.readInt();
+        return LocalDate.of(year,month,day);
+    }
     private void displayTimePeriodExpenses() {
         try {
             ConsolePrinter.printLine("Określ datę początkową w formacie yyyy-mm-dd");
@@ -142,9 +317,6 @@ public class ExpenseAppManager {
             ConsolePrinter.printError("Podano nieprawidłowy format daty");
         }
     }
-
-
-
     private void displayAllExpenses() {
         if(!Environment.getIfCurrAdmin()) {
             Environment.expenses.get(Environment.CURRENT_USER)
@@ -165,7 +337,6 @@ public class ExpenseAppManager {
             }
         }
     }
-
     private LocalDate getDate() throws DateTimeParseException {
         String date = dataReader.readLine();
         return LocalDate.parse(date);
@@ -182,13 +353,25 @@ public class ExpenseAppManager {
             startDate = startDate.plusDays(1);
         }
     }
+    private void printDateAverageExpensesPerUsername(LocalDate startDate, LocalDate endDate, String user) {
+        ArrayList<Expense> dateMatchExpenses = new ArrayList<>();
+        while(startDate.isBefore(endDate)) {
+            for (int i = 0; i < Environment.expenses.get(user).size(); i++) {
+                if(Environment.expenses.get(user).get(i).getDate().equals(startDate)) {
+                    dateMatchExpenses.add(Environment.expenses.get(user).get(i));
+                }
+            }
+            startDate = startDate.plusDays(1);
+        }
+        expenseAnalyser.printAverageExpensesForUser(dateMatchExpenses,user);
+    }
     private String getUsernameKey() {
         ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
         displayUsers();
         return dataReader.readLine();
     }
     private int allUsersOrOneUserDisplayExpensesChoice() {
-        ConsolePrinter.printLine("0 - Wyświetl wszystki wydatki każdego z użytkowników");
+        ConsolePrinter.printLine("0 - Wyświetl wszystkie wydatki każdego z użytkowników");
         ConsolePrinter.printLine("1 - Wyświetl wydatki tylko konkretnego użytkownika");
         return dataReader.readInt();
     }
@@ -197,13 +380,7 @@ public class ExpenseAppManager {
     //will be deleted, and only then to ask which entry to delete. It would be problematic to find a
     //singular entry to delete if there are like 50000 entries, right?
 
-    private void removeExpense() {
-        if(!Environment.getIfCurrAdmin()) {
-            removeExpense(Environment.CURRENT_USER);
-        } else {
-            removeExpense(getUsernameKey());
-        }
-    }
+
     private void removeExpense(String username) {
         //If not an admin, then you can only delete your expenses
             ConsolePrinter.printLine("Podaj kategorię, w której chcesz usunąć wydatek: ");
@@ -241,156 +418,6 @@ public class ExpenseAppManager {
             }
         }
     }
-
-
-
-
-    //Remove an entire expenseType together with associated expenses
-    private void removeExpenseType() {
-        //are you sure you wish to continue?
-        ConsolePrinter.printLine("Usunięcie danego typu wydatku spowoduje usunięcie wszystkich wydatków danej" +
-                "kategorii. Czy chcesz kontynuować? (Y/N)");
-        if(dataReader.readLine().equalsIgnoreCase("Y")) {
-            ConsolePrinter.printLine("Wybierz kategorię do usunięcia: ");
-            displayExpenseTypes();
-
-            //ExpenseType chosen by user by its id
-            ExpenseType expenseType = getExpenseType();
-
-            //are you really truly sure you wish to continue?
-            ConsolePrinter.printLine("UWAGA! Zamierzasz usunąć kategorię "+expenseType.description() +" oraz całą" +
-                    "jej zawartość. Czy chcesz kontynuować? (Y/N)");
-            if(dataReader.readLine().equalsIgnoreCase("Y")) {
-
-                //Remove expenses with the given category from the arraylist
-                Environment.expenses.get(Environment.CURRENT_USER).removeIf(expense -> expense.getExpenseType().equals(expenseType));
-
-                //Remove the expenseType
-                Environment.expenseTypes.remove(expenseType);
-            }
-        }
-    }
-
-    //I know the name is sort of confusing, but this method essentialy calculates the average expenses ONLY from
-    //the ExpenseType chosen by the user
-    private void averageExpensesInGivenCategory() {
-        ExpenseType expenseType;
-            ConsolePrinter.printLine("Wybierz kategorię: ");
-            displayExpenseTypes();
-            expenseType = getExpenseType();
-
-            expenseAnalyser.printAverageExpense(expenseType, Environment.CURRENT_USER);
-    }
-
-
-
-    private void displayExpenseTypes() {
-        Environment.expenseTypes
-                .forEach(value -> ConsolePrinter.printMenu(value.id(),value.toString()));
-    }
-
-    private void addNewUser() {
-
-        ConsolePrinter.printLine("Podaj nazwę użytkownika: ");
-        String username = dataReader.readLine();
-
-        ConsolePrinter.printLine("Podaj hasło: ");
-        String password = dataReader.readLine();
-
-        ConsolePrinter.printLine("Czy użytkownik jest adminem (Y/N)? ");
-        String decision = dataReader.readLine().toLowerCase();
-        switch(decision) {
-            case "y" -> environment.addUser(new User(username,password,true));
-            case "n" -> environment.addUser(new User(username,password,false));
-            default -> ConsolePrinter.printError("Podano nieznaną komendę");
-        }
-
-    }
-
-    private void addNewExpenseType() {
-        int id = Environment.expenseTypes.size();
-        ConsolePrinter.printLine("Podaj opis nowej kategorii wydatku: ");
-        String desc = dataReader.readLine();
-        Environment.expenseTypes.add(new ExpenseType(desc, id));
-    }
-
-    //TODO you should be able to restrict yourself to given time period when calculating average expenses
-    // (default should be the current month)
-
-    private void displayAverageExpenses() {
-        if(!Environment.getIfCurrAdmin()) {
-            for (ExpenseType expenseType : Environment.expenseTypes)
-                expenseAnalyser.printAverageExpense(expenseType, Environment.CURRENT_USER);
-        } else {
-            ConsolePrinter.printLine("0 - Uwzględnij dane wszystkich użytkowników");
-            ConsolePrinter.printLine("1 - Wyświetl średnie wydatki danego użytkownika");
-            int choice = dataReader.readInt();
-            if(choice==0) {
-                //TODO I believe this should be in ExpenseAnalyser
-                for (User user : Environment.users) {
-                    ConsolePrinter.printLine("Średnie wydatki użytkownika: "+ user.getUsername());
-                    for (ExpenseType expenseType : Environment.expenseTypes) {
-                        expenseAnalyser.printAverageExpense(expenseType,user.getUsername());
-                    }
-                }
-            } else if(choice==1) {
-                String usernameKey = getUsernameKey();
-
-                for (ExpenseType expenseType : Environment.expenseTypes)
-                    expenseAnalyser.printAverageExpense(expenseType, usernameKey);
-            } else {
-                ConsolePrinter.printError("Nieznana opcja");
-            }
-
-        }
-    }
-
-
-
-    //This function speaks for itself - it reads information from appUser and creates a new Expense and
-    //adds it to the expenses ArrayList
-    private void addNewExpense() {
-        try {
-            ConsolePrinter.printLine("Podaj kwotę wydatku (oddzielone kropką): ");
-            double value = dataReader.readDouble();
-
-            ConsolePrinter.printLine("Podaj ID kategorii wydatku: ");
-            ExpenseType expenseType = ExpenseType.createFromInt(dataReader.readInt());
-
-            ConsolePrinter.printLine("Czy wydatek poniosłeś dzisiaj? Y/N");
-            LocalDate localDate = LocalDate.now();
-
-            String decision = dataReader.readLine();
-                if(decision.equals("N")){
-                    ConsolePrinter.printLine("Podaj rok: ");
-                    int year = dataReader.readInt();
-                    ConsolePrinter.printLine("Podaj numer miesiąca: ");
-                    int month = dataReader.readInt();
-                    ConsolePrinter.printLine("Podaj dzień: ");
-                    int day = dataReader.readInt();
-                    localDate = LocalDate.of(year,month,day);
-                }
-
-            environment.addExpense(Environment.CURRENT_USER,new Expense(value,expenseType,localDate));
-
-        } catch (InputMismatchException | NoSuchOptionException e) {
-            ConsolePrinter.printError("You used the wrong datatype! Use double (f.e. 55.43) for value," +
-                    "int for id of an expenseType (make sure an expenseType with such an ID exists first) " +
-                    ", and int/int/int for date");
-        }
-    }
-
-    private void exitProgramm() {
-        try {
-            csvFileManager.exportData();
-            ConsolePrinter.printLine("Export danych do pliku zakończony powodzeniem");
-        } catch (DataExportException e) {
-            ConsolePrinter.printError(e.getMessage());
-        }
-        ConsolePrinter.printLine("Koniec programu ");
-        dataReader.closeRead();
-    }
-
    //Implementing a parameter method to replace the two methods below would be a really nice to flex on your friends,
     //but it requires much refactoring (I tried to do this, not worth it for now)
     private Options getOption() {
@@ -435,7 +462,7 @@ public class ExpenseAppManager {
         boolean isCorrectUser = false;
         User user;
         while(!isCorrectUser) {
-            user = createUserFromInput();
+            user = loginCreateUser();
             if(!Environment.users.contains(user)) {
                 ConsolePrinter.printError("Niepoprawny login i/lub hasło");
             }
@@ -448,7 +475,7 @@ public class ExpenseAppManager {
         csvFileManager.secondaryDataImport();
     }
 
-    private User createUserFromInput() {
+    private User loginCreateUser() {
         ConsolePrinter.printLine("Podaj nazwę użytkownika");
         String username = dataReader.readLine();
         ConsolePrinter.printLine("Podaj hasło");

@@ -9,8 +9,11 @@ import pl.touljaboy.io.ConsolePrinter;
 import pl.touljaboy.model.Environment;
 import pl.touljaboy.model.Expense;
 import pl.touljaboy.model.ExpenseType;
+import pl.touljaboy.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -81,28 +84,35 @@ public class ExpenseAnalyser {
 
         }
 
-    public double calculateAverageExpenses(ExpenseType expenseType, String username) {
+    public double calculateAverageExpenses(List<Expense> expenses, ExpenseType expenseType, String username) {
         //sum the values of a given type
         //Predicate checking if username == current user and if expensetype.id == id of expensetype of a given expense
         Predicate<Expense> isExpenseTypeId = expense -> expense.
                 getExpenseType().
                 id()==expenseType.id();
-        double sum = Environment.expenses.get(username).stream()
+        double sum = expenses.stream()
                 .filter(isExpenseTypeId)
                 .mapToDouble(Expense::getValue)
                 .sum();
         //count the values of a given type
-        long count = Environment.expenses.values().stream()
+        long count = expenses.stream()
                 .filter(isExpenseTypeId)
                 .count();
         //return average
         return sum/count;
     }
 
-    public void printAverageExpense(ExpenseType expenseType, String username) {
+    public void printAverageExpense(List<Expense> expenses, ExpenseType expenseType, String username) {
         String averageExpense = String
-                .format("%-15s avg = %.2f",expenseType.description(),calculateAverageExpenses(expenseType, username));
+                .format("%-15s avg = %.2f",expenseType.description()
+                        ,calculateAverageExpenses(expenses, expenseType, username));
         ConsolePrinter.printLine(averageExpense);
+    }
+    public void printAverageExpensesForUser(List<Expense> expenses, String username) {
+            ConsolePrinter.printLine("Średnie wydatki użytkownika: "+ username);
+            for (ExpenseType expenseType : Environment.expenseTypes) {
+                printAverageExpense(expenses,expenseType,username);
+            }
     }
 
 }
