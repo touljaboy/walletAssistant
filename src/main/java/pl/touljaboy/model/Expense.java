@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 //The class is used to represent single expenses and to store an ArrayList of those expenses.
-public class Expense implements CSVConvertible {
+public class Expense implements CSVConvertible, Comparable<Expense> {
     /*
     I got pounded by an idea to use a hashmap for
     storing expenses. I realise hashmap wont do, because I need multiple values for one key.
@@ -64,5 +64,23 @@ public class Expense implements CSVConvertible {
         String format = String.format
                 ("|wartość: %10.2f | kategoria: %-15s | data: %s|", value, expenseType.description(), date);
         return format;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Expense expense = (Expense) o;
+        return Objects.equals(date, expense.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(date);
+    }
+
+    @Override
+    public int compareTo(Expense o) {
+        return -(this.getDate().compareTo(o.getDate()));
     }
 }

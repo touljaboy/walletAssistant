@@ -14,6 +14,7 @@ import pl.touljaboy.model.User;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.List;
 
@@ -298,7 +299,6 @@ public class ExpenseAppManager {
             LocalDate endDate = getDate();
 
             if (!Environment.getIfCurrAdmin()) {
-                //TODO expenses should be sorting themselfes by default when adding a new one
                 printDateExpensesPerUsername(startDate, endDate, Environment.CURRENT_USER);
             } else {
                 int choice = allUsersOrOneUserDisplayExpensesChoice(); //0-->all, 1-->one
@@ -319,18 +319,21 @@ public class ExpenseAppManager {
     }
     private void displayAllExpenses() {
         if(!Environment.getIfCurrAdmin()) {
+            Environment.sortExpenses(Environment.CURRENT_USER);
             Environment.expenses.get(Environment.CURRENT_USER)
                     .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
         } else {
             int choice = allUsersOrOneUserDisplayExpensesChoice(); //0->all 1-->one
             if(choice==0) {
                 for (User user : Environment.users) {
+                    Environment.sortExpenses(user.getUsername());
                     Environment.expenses.get(user.getUsername())
                             .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
                 }
             } else if (choice==1) {
-                //TODO dont know if this will work
-                Environment.expenses.get(getUsernameKey())
+                String usernameKey = getUsernameKey();
+                Environment.sortExpenses(usernameKey);
+                Environment.expenses.get(usernameKey)
                         .forEach(expense -> ConsolePrinter.printLine(expense.toString()));
             } else {
                 ConsolePrinter.printError("Nieznana opcja");
@@ -343,6 +346,8 @@ public class ExpenseAppManager {
     }
     //Function used to print an expense based on user and date period parameters
     private void printDateExpensesPerUsername(LocalDate startDate, LocalDate endDate, String user) {
+        //Sorting the arraylist before displaying
+        Environment.sortExpenses(user);
         while(startDate.isBefore(endDate)) {
             for (int j = 0; j < Environment.expenses.get(user).size(); j++) {
                 if (Environment.expenses.get(user).get(j)

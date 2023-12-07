@@ -6,6 +6,7 @@ import pl.touljaboy.app.ExpenseAppManager;
 import pl.touljaboy.io.ConsolePrinter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -41,5 +42,10 @@ public class Environment {
             }
         }
         return users.get(currIndex).isAdmin();
+    }
+    //Simple method calling a simple function, but it increases readability, so I dont mind such behavior and so
+    //does stack
+    public static void sortExpenses(String username) {
+        Collections.sort(expenses.get(username));
     }
 }
