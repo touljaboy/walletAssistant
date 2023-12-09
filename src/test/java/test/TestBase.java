@@ -14,6 +14,7 @@ import pl.touljaboy.model.User;
 import java.time.LocalDate;
 
 public class TestBase {
+    //TODO consider creating a sample dataSet as a csv document, then reading it into the programm during runtime
     //Base class for other tests, functions such as adding the test user, adding the sample data etc.
     //Test Base will contain these static variables, until I figure out a better way
     public static final User user = new User("test","test",true);

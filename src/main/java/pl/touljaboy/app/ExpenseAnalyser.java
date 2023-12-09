@@ -30,8 +30,6 @@ public class ExpenseAnalyser {
     //do something different for once.
 
     //For now, plot a graph of ALL the data from the ArrayList Expense.expenses
-    //TODO plot a graph for specific data range (using Date)
-    //TODO yearly report of average expenses
     //Okay, this function looks UGLY as HELL right now. As I've said, I will later use JavaFX,
     // but who knows, maybe some of the things I've learned here will be useful!
     //Note from version 0.10 alpha development: I found a bug - values of expenses of the same value
@@ -40,13 +38,20 @@ public class ExpenseAnalyser {
     //way why a reference to a static ArrayList DOESNT MEAN IT IS BEING CLONED!!! So I refactored the code to ommit
     //this problem and at the same time, I believe this solution is more readible anyway. Probably there is still
     //a better way to do this, but this function is useless in the long run, so why spend so much time on it?
-    public void plotAFullGraph() {
-        List<Expense> expenses = Environment.expenses.get(Environment.CURRENT_USER).stream().toList();
 
-        List<LocalDate> uniqueDates = expenses.stream().map(Expense::getDate).distinct().toList();
+    //TODO in GUI version, this function needs to have dates on x label or mark points with dates so data makes sense
+    public void plotAFullGraph(LocalDate startDate, LocalDate endDate, String user) {
+        List<Expense> expenses = Environment.expenses.get(user).stream().toList();
+        List<LocalDate> uniqueDates = expenses
+                .stream()
+                .map(Expense::getDate)
+                .distinct()
+                .filter(localDate -> localDate.isAfter(startDate)&&localDate.isBefore(endDate))
+                .toList();
+
         double[] values = new double[uniqueDates.size()];
         for(int i=0; i<uniqueDates.size(); i++) {
-            for(int j=0; j<Environment.expenses.size(); j++) {
+            for(int j=0; j<Environment.expenses.get(user).size(); j++) {
                 if(expenses.get(j).getDate().isEqual(uniqueDates.get(i))) {
                     values[i] += expenses.get(j).getValue();
                 }
@@ -113,6 +118,22 @@ public class ExpenseAnalyser {
             for (ExpenseType expenseType : Environment.expenseTypes) {
                 printAverageExpense(expenses,expenseType,username);
             }
+    }
+    public void printDateAverageExpensesPerUsername(LocalDate startDate, LocalDate endDate, String user) {
+        ArrayList<Expense> dateMatchExpenses = getDatePeriodExpenses(startDate,endDate,user);
+        printAverageExpensesForUser(dateMatchExpenses,user);
+    }
+    public ArrayList<Expense> getDatePeriodExpenses(LocalDate startDate, LocalDate endDate, String user) {
+        ArrayList<Expense> dateMatchExpenses = new ArrayList<>();
+        while(startDate.isBefore(endDate)) {
+            for (int i = 0; i < Environment.expenses.get(user).size(); i++) {
+                if(Environment.expenses.get(user).get(i).getDate().equals(startDate)) {
+                    dateMatchExpenses.add(Environment.expenses.get(user).get(i));
+                }
+            }
+            startDate = startDate.plusDays(1);
+        }
+        return dateMatchExpenses;
     }
 
 }

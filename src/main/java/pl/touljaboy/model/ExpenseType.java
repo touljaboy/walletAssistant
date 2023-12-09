@@ -21,7 +21,6 @@ public record ExpenseType(String description, int id) implements CSVConvertible 
         return "KATEGORIA: " + description;
     }
 
-    //TODO description should have 15 characters max (due to functionality in printing expenseTypes)
     public static ExpenseType createFromInt(int choice) throws NoSuchOptionException {
         try {
             return Environment.expenseTypes.get(choice);

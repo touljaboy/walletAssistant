@@ -61,17 +61,18 @@ public class ExpenseAppManager {
                 case DISPLAYEXPENSETYPES -> displayExpenseTypes();
                 case ADDEXPENSETYPE -> addNewExpenseType();
                 case REMOVEEXPENSETYPE -> removeExpenseType();
-                //TODO fix displayed indexes in removeExpense(). Dont know why, but indexes start at f.e 3, instead of 1
                 case REMOVEEXPENSE -> removeExpense();
                 case AVERAGEEXPENSEPERTYPE -> averageExpensesInGivenCategory();
-                //TODO plot a graph for a user of choice if you are admin
-                case PLOTAGRAPH -> expenseAnalyser.plotAFullGraph();
+                case PLOTAGRAPH -> plotAGraph();
                 case REMOVEUSER -> removeUser();
                 case DISPLAYALLEXPENSES -> displayExpenses();
                 case DISPLAYUSERS -> displayUsers();
             }
         } while(option != Options.EXIT);
     }
+
+
+
     private void exitProgram() {
         try {
             csvFileManager.exportData();
@@ -108,8 +109,6 @@ public class ExpenseAppManager {
                     "istnieje), w przypadku daty posługuj się wartościami naturalnymi zgodnymi z kalendarzem");
         }
     }
-    //TODO you should be able to restrict yourself to given time period when calculating average expenses
-    // (default should be the current month)
 
     private void displayAverageExpenses() {
         ConsolePrinter.printLine("0 - Wyświetl całościowe średnie wydatki");
@@ -131,15 +130,15 @@ public class ExpenseAppManager {
             LocalDate endDate = getDate();
 
             if (!Environment.getIfCurrAdmin()) {
-                printDateAverageExpensesPerUsername(startDate, endDate, Environment.CURRENT_USER);
+                expenseAnalyser.printDateAverageExpensesPerUsername(startDate, endDate, Environment.CURRENT_USER);
             } else {
                 int choice = allUsersOrOneUserDisplayExpensesChoice(); //0-->all, 1-->one
                 if (choice == 0) {
                     for (User user : Environment.users) {
-                        printDateAverageExpensesPerUsername(startDate, endDate, user.getUsername());
+                        expenseAnalyser.printDateAverageExpensesPerUsername(startDate, endDate, user.getUsername());
                     }
                 } else if (choice == 1) {
-                    printDateAverageExpensesPerUsername(startDate, endDate, getUsernameKey());
+                    expenseAnalyser.printDateAverageExpensesPerUsername(startDate, endDate, getUsernameKey());
 
                 } else {
                     ConsolePrinter.printError("Nieznana opcja");
@@ -197,9 +196,12 @@ public class ExpenseAppManager {
     }
     private void addNewExpenseType() {
         int id = Environment.expenseTypes.size();
-        ConsolePrinter.printLine("Podaj opis nowej kategorii wydatku: ");
+        ConsolePrinter.printLine("Podaj opis nowej kategorii wydatku (max 15 znaków): ");
         String desc = dataReader.readLine();
-        Environment.expenseTypes.add(new ExpenseType(desc, id));
+        if(desc.length()<=15)
+            Environment.expenseTypes.add(new ExpenseType(desc, id));
+        else ConsolePrinter.printError
+                ("Niepoprawna długość opisu kategorii (max 15 znaków, podano" + desc.length() + " znaków");
     }
     private void removeExpenseType() {
         //are you sure you wish to continue?
@@ -242,6 +244,25 @@ public class ExpenseAppManager {
 
         expenseAnalyser.printAverageExpense(Environment.expenses.get(Environment.CURRENT_USER)
                 , expenseType, Environment.CURRENT_USER);
+    }
+
+    //TODO maybe there is a way to avoid code repetition with getting dates. Consider creating a new class which
+    // will be extended by expense app manager. Dates will be read in that class each time using 1 function
+    private void plotAGraph() {
+        try {
+            ConsolePrinter.printLine("Określ datę początkową w formacie yyyy-mm-dd");
+            LocalDate startDate = getDate();
+            ConsolePrinter.printLine("Określ datę końcową w formacie yyyy-mm-dd");
+            LocalDate endDate = getDate();
+
+            if (!Environment.getIfCurrAdmin()) {
+                expenseAnalyser.plotAFullGraph(startDate,endDate,Environment.CURRENT_USER);
+            } else {
+                expenseAnalyser.plotAFullGraph(startDate,endDate,getUsernameKey());
+            }
+        } catch (DateTimeParseException e) {
+            ConsolePrinter.printError("Podano błędny format dat");
+        }
     }
     private void displayUsers() {
         for (int i = 0; i < Environment.users.size(); i++) {
@@ -358,18 +379,7 @@ public class ExpenseAppManager {
             startDate = startDate.plusDays(1);
         }
     }
-    private void printDateAverageExpensesPerUsername(LocalDate startDate, LocalDate endDate, String user) {
-        ArrayList<Expense> dateMatchExpenses = new ArrayList<>();
-        while(startDate.isBefore(endDate)) {
-            for (int i = 0; i < Environment.expenses.get(user).size(); i++) {
-                if(Environment.expenses.get(user).get(i).getDate().equals(startDate)) {
-                    dateMatchExpenses.add(Environment.expenses.get(user).get(i));
-                }
-            }
-            startDate = startDate.plusDays(1);
-        }
-        expenseAnalyser.printAverageExpensesForUser(dateMatchExpenses,user);
-    }
+
     private String getUsernameKey() {
         ConsolePrinter.printLine("Wybierz użytkownika (wpisz jego nazwę): ");
         displayUsers();
