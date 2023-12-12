@@ -89,15 +89,33 @@ public class ExpenseAppManager {
         try {
             ConsolePrinter.printLine("Podaj kwotę wydatku (oddzielone kropką): ");
             double value = dataReader.readDouble();
-            displayExpenseTypes();
-            ConsolePrinter.printLine("Podaj ID kategorii wydatku: ");
-            ExpenseType expenseType = ExpenseType.createFromInt(dataReader.readInt());
 
+            //TODO I know this is bad practice to use null, Ill try to think of smth later on
+            ExpenseType expenseType = null;
+            boolean goodToContinue=false;
+            do {
+                ConsolePrinter.printLine("Podaj ID kategorii wydatku: ");
+                displayExpenseTypes();
+                int expenseTypeId = dataReader.readInt();
+                if (Environment.expenseTypes.size() - 1 >= expenseTypeId) {
+                    expenseType = ExpenseType.createFromInt(expenseTypeId);
+                    goodToContinue=true;
+                } else {
+                    ConsolePrinter.printLine
+                            ("Kategoria o podanym id nie istnieje. Czy chcesz utworzyc nową kategorię? (Y/N)");
+                    String decision = dataReader.readLine();
+                    if (decision.equalsIgnoreCase("Y")) {
+                        addNewExpenseType();
+                        expenseType = Environment.expenseTypes.get(Environment.expenseTypes.size() - 1);
+                        goodToContinue=true;
+                    }
+                }
+            } while(!goodToContinue);
             ConsolePrinter.printLine("Czy wydatek poniosłeś dzisiaj? Y/N");
             LocalDate localDate = LocalDate.now();
 
             String decision = dataReader.readLine();
-            if(decision.equals("N")){
+            if(decision.equalsIgnoreCase("N")){
                 localDate = createDateFromInput();
             }
 
@@ -412,17 +430,17 @@ public class ExpenseAppManager {
         } else {
             ConsolePrinter.printLine("Wybierz wydatek do usunięcia: ");
             //display expenses within a given expenseType
-            expensesWithinTheCategory.forEach(expense -> ConsolePrinter.printLine(Environment.expenses.
-                    get(username).indexOf(expense)
-                    + ": " + expense));
+            for (int i = 0; i < expensesWithinTheCategory.size(); i++) {
+                ConsolePrinter.printLine(i+" : "+expensesWithinTheCategory.get(i).toString());
+            }
             //remove the expense based on user input of index
             int choice = dataReader.readInt();
 
             //are you sure you wish to delete the entry?
             //Alpha 1.01 note - found a bug, where you can delete expenses outside the chosen category.
             try {
-                Expense toBeRemoved = Environment.expenses.get(username).get(choice);
-                if (expensesWithinTheCategory.contains(toBeRemoved)) {
+                Expense toBeRemoved = expensesWithinTheCategory.get(choice);
+                if (Environment.expenses.get(username).contains(toBeRemoved)) {
                     ConsolePrinter.printLine("Zamierzasz usunąć wydatek: " + toBeRemoved.toString() + ", " +
                             "Czy chcesz kontynuować? (Y/N)");
                     if (dataReader.readLine().equalsIgnoreCase("Y"))
