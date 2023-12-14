@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="350.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/20.0.1" fx:controller="pl.touljaboy.controller.SettingsPaneController">
+  <panes>
+    <TitledPane animated="false" text="App Settings">
+         <content>
+            <VBox>
+               <children>
+                  <HBox>
+                     <children>
+                        <MenuButton fx:id="LanguageMenuButton" mnemonicParsing="false" prefWidth="100.0" text="Language">
+                          <items>
+                            <MenuItem fx:id="EnglishMenuItem" mnemonicParsing="false" text="English" />
+                            <MenuItem fx:id="PolishMenuItem" mnemonicParsing="false" text="Polish" />
+                          </items>
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </MenuButton>
+                        <MenuButton fx:id="CurrencyMenuButton" mnemonicParsing="false" prefWidth="100.0" text="Currency">
+                           <items>
+                              <MenuItem fx:id="DollarMenuItem" mnemonicParsing="false" text="\$" />
+                              <MenuItem fx:id="EuroMenuItem" mnemonicParsing="false" text="€" />
+                              <MenuItem fx:id="PLNMenuItem" mnemonicParsing="false" text="PLN" />
+                           </items>
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </MenuButton>
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+            </VBox>
+         </content>
+    </TitledPane>
+  </panes>
+</Accordion>
