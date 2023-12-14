@@ -15,9 +15,6 @@ public class Expense implements CSVConvertible, Comparable<Expense> {
     private double value;
     private ExpenseType expenseType;
     private LocalDate date;
-
-
-
     public Expense(double value, ExpenseType expenseType, LocalDate date) {
         this.value = value;
         this.expenseType = expenseType;

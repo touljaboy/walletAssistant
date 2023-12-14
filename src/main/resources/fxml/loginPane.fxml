@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.touljaboy.controller.LoginPaneController">
+   <children>
+      <Button fx:id="loginButton" layoutX="176.0" layoutY="160.0" mnemonicParsing="false" text="Login" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="176.0" AnchorPane.rightAnchor="162.5" AnchorPane.topAnchor="155.0" />
+      <PasswordField fx:id="passwordField" layoutX="120.0" layoutY="123.0" AnchorPane.bottomAnchor="37.0" AnchorPane.leftAnchor="120.0" AnchorPane.rightAnchor="115.5" AnchorPane.topAnchor="123.0" />
+      <TextField fx:id="usernameField" layoutX="120.0" layoutY="74.0" AnchorPane.bottomAnchor="86.0" AnchorPane.leftAnchor="120.0" AnchorPane.rightAnchor="115.5" AnchorPane.topAnchor="74.0" />
+      <Label fx:id="landingLabel" layoutX="128.0" layoutY="14.0" text="Identify yourself, citizen" AnchorPane.bottomAnchor="157.0" AnchorPane.leftAnchor="128.0" AnchorPane.rightAnchor="124.0" AnchorPane.topAnchor="14.0">
+         <font>
+            <Font name="Tiro Devanagari Sanskrit" size="13.0" />
+         </font>
+      </Label>
+      <Label fx:id="usernameLabel" layoutX="53.0" layoutY="79.0" text="Username:" AnchorPane.bottomAnchor="90.0" AnchorPane.leftAnchor="54.0" AnchorPane.rightAnchor="281.5" AnchorPane.topAnchor="79.0" />
+      <Label fx:id="passwordLabel" layoutX="54.0" layoutY="128.0" text="Password:" AnchorPane.bottomAnchor="41.0" AnchorPane.leftAnchor="54.0" AnchorPane.rightAnchor="284.5" AnchorPane.topAnchor="128.0" />
+      <Button fx:id="quitButton" layoutX="346.0" layoutY="160.0" mnemonicParsing="false" text="Quit" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="155.0" />
+   </children>
+</AnchorPane>
