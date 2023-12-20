@@ -27,4 +27,31 @@ public class ContentPaneController {
     @FXML
     private Label welcomeLabel;
 
+    public Button getCalendarButton() {
+        return calendarButton;
+    }
+
+    public Button getExpenseTypesButton() {
+        return expenseTypesButton;
+    }
+
+    public Button getExpensesButton() {
+        return expensesButton;
+    }
+
+    public Button getPlotButton() {
+        return plotButton;
+    }
+
+    public Button getSettingsButton() {
+        return settingsButton;
+    }
+
+    public Button getUsersButton() {
+        return usersButton;
+    }
+
+    public Label getWelcomeLabel() {
+        return welcomeLabel;
+    }
 }

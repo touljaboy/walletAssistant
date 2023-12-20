@@ -2,47 +2,67 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="350.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/20.0.1" fx:controller="pl.touljaboy.controller.SettingsPaneController">
-  <panes>
-    <TitledPane animated="false" text="App Settings">
-         <content>
-            <VBox>
-               <children>
-                  <HBox>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.touljaboy.controller.SettingsPaneController">
+   <children>
+      <Accordion layoutX="19.0" layoutY="14.0" minHeight="-Infinity" minWidth="-Infinity">
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+         <panes>
+            <TitledPane animated="false" text="App Settings">
+               <content>
+                  <VBox>
                      <children>
-                        <MenuButton fx:id="LanguageMenuButton" mnemonicParsing="false" prefWidth="100.0" text="Language">
-                          <items>
-                            <MenuItem fx:id="EnglishMenuItem" mnemonicParsing="false" text="English" />
-                            <MenuItem fx:id="PolishMenuItem" mnemonicParsing="false" text="Polish" />
-                          </items>
-                           <HBox.margin>
+                        <HBox>
+                           <children>
+                              <MenuButton fx:id="LanguageMenuButton" mnemonicParsing="false" prefWidth="100.0" text="Language">
+                                 <items>
+                                    <MenuItem fx:id="EnglishMenuItem" mnemonicParsing="false" text="English" />
+                                    <MenuItem fx:id="PolishMenuItem" mnemonicParsing="false" text="Polish" />
+                                 </items>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </MenuButton>
+                              <MenuButton fx:id="CurrencyMenuButton" mnemonicParsing="false" prefWidth="100.0" text="Currency">
+                                 <items>
+                                    <MenuItem fx:id="DollarMenuItem" mnemonicParsing="false" text="\$" />
+                                    <MenuItem fx:id="EuroMenuItem" mnemonicParsing="false" text="€" />
+                                    <MenuItem fx:id="PLNMenuItem" mnemonicParsing="false" text="PLN" />
+                                 </items>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </MenuButton>
+                              <Button fx:id="applyButton" mnemonicParsing="false" prefWidth="100.0" text="Apply">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <VBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </HBox.margin>
-                        </MenuButton>
-                        <MenuButton fx:id="CurrencyMenuButton" mnemonicParsing="false" prefWidth="100.0" text="Currency">
-                           <items>
-                              <MenuItem fx:id="DollarMenuItem" mnemonicParsing="false" text="\$" />
-                              <MenuItem fx:id="EuroMenuItem" mnemonicParsing="false" text="€" />
-                              <MenuItem fx:id="PLNMenuItem" mnemonicParsing="false" text="PLN" />
-                           </items>
-                           <HBox.margin>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </HBox.margin>
-                        </MenuButton>
+                           </VBox.margin>
+                        </HBox>
                      </children>
-                     <VBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </VBox.margin>
-                  </HBox>
-               </children>
-            </VBox>
-         </content>
-    </TitledPane>
-  </panes>
-</Accordion>
+                  </VBox>
+               </content>
+            </TitledPane>
+         </panes>
+      </Accordion>
+      <Button fx:id="backButton" layoutX="339.0" layoutY="159.0" mnemonicParsing="false" text="BACK">
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </Button>
+   </children>
+</AnchorPane>

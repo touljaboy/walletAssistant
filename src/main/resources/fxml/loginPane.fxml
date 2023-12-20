@@ -7,19 +7,21 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.touljaboy.controller.LoginPaneController">
    <children>
-      <Button fx:id="loginButton" layoutX="176.0" layoutY="160.0" mnemonicParsing="false" text="Login" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="176.0" AnchorPane.rightAnchor="162.5" AnchorPane.topAnchor="155.0" />
-      <PasswordField fx:id="passwordField" layoutX="120.0" layoutY="123.0" AnchorPane.bottomAnchor="37.0" AnchorPane.leftAnchor="120.0" AnchorPane.rightAnchor="115.5" AnchorPane.topAnchor="123.0" />
-      <TextField fx:id="usernameField" layoutX="120.0" layoutY="74.0" AnchorPane.bottomAnchor="86.0" AnchorPane.leftAnchor="120.0" AnchorPane.rightAnchor="115.5" AnchorPane.topAnchor="74.0" />
-      <Label fx:id="landingLabel" layoutX="128.0" layoutY="14.0" text="Identify yourself, citizen" AnchorPane.bottomAnchor="157.0" AnchorPane.leftAnchor="128.0" AnchorPane.rightAnchor="124.0" AnchorPane.topAnchor="14.0">
+      <TextField fx:id="usernameField" layoutX="117.0" layoutY="50.0" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="117.0" AnchorPane.rightAnchor="118.5" AnchorPane.topAnchor="50.0" />
+      <PasswordField fx:id="passwordField" layoutX="117.0" layoutY="99.0" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="117.0" AnchorPane.rightAnchor="118.5" AnchorPane.topAnchor="99.0">
+         <font>
+            <Font size="7.0" />
+         </font></PasswordField>
+      <Button fx:id="loginButton" layoutX="170.0" layoutY="146.0" mnemonicParsing="false" text="Login" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="170.0" AnchorPane.rightAnchor="168.5" AnchorPane.topAnchor="146.0" />
+      <Label fx:id="landingLabel" alignment="TOP_CENTER" layoutX="117.0" layoutY="14.0" text="Identify yourself, citizen" textAlignment="CENTER" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <font>
             <Font name="Tiro Devanagari Sanskrit" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="usernameLabel" layoutX="53.0" layoutY="79.0" text="Username:" AnchorPane.bottomAnchor="90.0" AnchorPane.leftAnchor="54.0" AnchorPane.rightAnchor="281.5" AnchorPane.topAnchor="79.0" />
-      <Label fx:id="passwordLabel" layoutX="54.0" layoutY="128.0" text="Password:" AnchorPane.bottomAnchor="41.0" AnchorPane.leftAnchor="54.0" AnchorPane.rightAnchor="284.5" AnchorPane.topAnchor="128.0" />
-      <Button fx:id="quitButton" layoutX="346.0" layoutY="160.0" mnemonicParsing="false" text="Quit" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="155.0" />
+      <Label fx:id="usernameLabel" layoutX="51.0" layoutY="55.0" text="Username:" AnchorPane.bottomAnchor="114.0" AnchorPane.leftAnchor="51.0" AnchorPane.rightAnchor="284.5" AnchorPane.topAnchor="55.0" />
+      <Label fx:id="passwordLabel" layoutX="51.0" layoutY="104.0" text="Password:" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="51.0" AnchorPane.rightAnchor="287.5" AnchorPane.topAnchor="104.0" />
+      <Button fx:id="quitButton" layoutX="344.0" layoutY="146.0" mnemonicParsing="false" text="Quit" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="344.0" AnchorPane.rightAnchor="11.0" AnchorPane.topAnchor="146.0" />
    </children>
 </AnchorPane>
