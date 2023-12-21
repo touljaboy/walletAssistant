@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -63,6 +64,19 @@ public class ExpenseTypePaneController {
                 stage.setResizable(false);
                 stage.show();
                 ((Node)(action.getSource())).getScene().getWindow().hide();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        newCategoryButton.setOnAction(action ->  {
+            AnchorPane addExpenseTypePane;
+            try {
+                addExpenseTypePane = FXMLLoader.load(getClass().getResource("/fxml/addExpenseTypePane.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(addExpenseTypePane);
+                stage.setScene(scene);
+                stage.setResizable(false);
+                stage.show();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

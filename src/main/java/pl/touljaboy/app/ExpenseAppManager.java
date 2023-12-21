@@ -1,5 +1,6 @@
 package pl.touljaboy.app;
 
+import javafx.scene.control.Alert;
 import pl.touljaboy.exception.DataExportException;
 import pl.touljaboy.exception.DataImportException;
 import pl.touljaboy.exception.NoSuchOptionException;
@@ -25,13 +26,17 @@ public class ExpenseAppManager {
     //Im doing the list below, it's place might be in environment, same with info about current user, I will
     //think about it later. Also, since I've introduced such static arraylist, it might be smart to refactor the code
 
-    DataReader dataReader = new DataReader();
+    static DataReader dataReader = new DataReader();
     ExpenseAnalyser expenseAnalyser = new ExpenseAnalyser();
     CsvFileManager csvFileManager = new CsvFileManager();
-    Environment environment;
+    static Environment environment;
 
     //constructor for using the app in the terminal. Data is imported from file in constructor.
     public ExpenseAppManager() {
+
+    }
+
+    public void initialize() {
         try {
             environment = csvFileManager.initialDataImport();
             ConsolePrinter.printLine("Import użytkowników zakończony sukcesem");
@@ -44,32 +49,32 @@ public class ExpenseAppManager {
     }
 
     //the class is used in the alpha version of the program to print the options into the terminal
-    public void controlLoop() {
-        Options option;
-        do {
-            ConsolePrinter.printLine(ExpenseManagerApp.APP_VERSION);
-            printOptions();
-            option = getOption();
-
-            //Can't really decide if I want expenseTypes to be "public" in sense that every user shares the entered
-            //expense types or not. I believe there are pros and cons to both solutions
-            switch(option) {
-                case EXIT -> exitProgram();
-                case NEWENTRY -> addNewExpense();
-                case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
-                case ADDUSER -> addNewUser();
-                case DISPLAYEXPENSETYPES -> displayExpenseTypes();
-                case ADDEXPENSETYPE -> addNewExpenseType();
-                case REMOVEEXPENSETYPE -> removeExpenseType();
-                case REMOVEEXPENSE -> removeExpense();
-                case AVERAGEEXPENSEPERTYPE -> averageExpensesInGivenCategory();
-                case PLOTAGRAPH -> plotAGraph();
-                case REMOVEUSER -> removeUser();
-                case DISPLAYALLEXPENSES -> displayExpenses();
-                case DISPLAYUSERS -> displayUsers();
-            }
-        } while(option != Options.EXIT);
-    }
+//    public void controlLoop() {
+//        Options option;
+//        do {
+//            ConsolePrinter.printLine(ExpenseManagerApp.APP_VERSION);
+//            printOptions();
+//            option = getOption();
+//
+//            //Can't really decide if I want expenseTypes to be "public" in sense that every user shares the entered
+//            //expense types or not. I believe there are pros and cons to both solutions
+//            switch(option) {
+//                case EXIT -> exitProgram();
+//                case NEWENTRY -> addNewExpense();
+//                case DISPLAYAVERAGEEXPENSES -> displayAverageExpenses();
+//                case ADDUSER -> addNewUser();
+//                case DISPLAYEXPENSETYPES -> displayExpenseTypes();
+//                case ADDEXPENSETYPE -> addNewExpenseType();
+//                case REMOVEEXPENSETYPE -> removeExpenseType();
+//                case REMOVEEXPENSE -> removeExpense();
+//                case AVERAGEEXPENSEPERTYPE -> averageExpensesInGivenCategory();
+//                case PLOTAGRAPH -> plotAGraph();
+//                case REMOVEUSER -> removeUser();
+//                case DISPLAYALLEXPENSES -> displayExpenses();
+//                case DISPLAYUSERS -> displayUsers();
+//            }
+//        } while(option != Options.EXIT);
+//    }
 
 
 
@@ -85,30 +90,12 @@ public class ExpenseAppManager {
     }
     //This function speaks for itself - it reads information from appUser and creates a new Expense and
     //adds it to the expenses ArrayList
-    private void addNewExpense() {
-        try {
-            ConsolePrinter.printLine("Podaj kwotę wydatku (oddzielone kropką): ");
-            double value = dataReader.readDouble();
-            displayExpenseTypes();
-            ConsolePrinter.printLine("Podaj ID kategorii wydatku: ");
-            ExpenseType expenseType = ExpenseType.createFromInt(dataReader.readInt());
-
-            ConsolePrinter.printLine("Czy wydatek poniosłeś dzisiaj? Y/N");
-            LocalDate localDate = LocalDate.now();
-
-            String decision = dataReader.readLine();
-            if(decision.equals("N")){
-                localDate = createDateFromInput();
-            }
-
+    //UPDATED in BETA GUI 0.6
+    public static void addNewExpense(Double value,ExpenseType expenseType,LocalDate localDate) {
             environment.addExpense(Environment.CURRENT_USER,new Expense(value,expenseType,localDate));
-
-        } catch (InputMismatchException | NoSuchOptionException e) {
-            ConsolePrinter.printError("Użyto błędnego typu danych. Wartość wydatku powinna być oddzielona kropką" +
-                    ",np 55.43; id kategorii wydatku jest liczbą naturalną (upewnij się, że kategoria o danym id" +
-                    "istnieje), w przypadku daty posługuj się wartościami naturalnymi zgodnymi z kalendarzem");
-        }
     }
+
+
 
     private void displayAverageExpenses() {
         ConsolePrinter.printLine("0 - Wyświetl całościowe średnie wydatki");
@@ -174,33 +161,18 @@ public class ExpenseAppManager {
         }
     }
 
-    private void addNewUser() {
-
-        ConsolePrinter.printLine("Podaj nazwę użytkownika: ");
-        String username = dataReader.readLine();
-
-        ConsolePrinter.printLine("Podaj hasło: ");
-        String password = dataReader.readLine();
-
-        ConsolePrinter.printLine("Czy użytkownik jest adminem (Y/N)? ");
-        String decision = dataReader.readLine().toLowerCase();
-        switch(decision) {
-            case "y" -> environment.addUser(new User(username,password,true));
-            case "n" -> environment.addUser(new User(username,password,false));
-            default -> ConsolePrinter.printError("Podano nieznaną komendę");
-        }
+    public static void addNewUser(String username, String password, boolean isAdmin) {
+            environment.addUser(new User(username,password,isAdmin));
     }
     private void displayExpenseTypes() {
         Environment.expenseTypes
                 .forEach(value -> ConsolePrinter.printMenu(value.id(),value.toString()));
     }
-    private void addNewExpenseType() {
+    public static void addNewExpenseType(String desc) {
         int id = Environment.expenseTypes.size();
-        ConsolePrinter.printLine("Podaj opis nowej kategorii wydatku (max 15 znaków): ");
-        String desc = dataReader.readLine();
         if(desc.length()<=15)
             Environment.expenseTypes.add(new ExpenseType(desc, id));
-        else ConsolePrinter.printError
+        else ConsolePrinter.showErrorPopup
                 ("Niepoprawna długość opisu kategorii (max 15 znaków, podano" + desc.length() + " znaków");
     }
     private void removeExpenseType() {

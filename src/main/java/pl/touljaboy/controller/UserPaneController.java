@@ -7,8 +7,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import pl.touljaboy.app.ExpenseAppManager;
 
 import java.io.IOException;
 
@@ -64,6 +66,19 @@ public class UserPaneController {
                 stage.setResizable(false);
                 stage.show();
                 ((Node)(action.getSource())).getScene().getWindow().hide();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        addUserButton.setOnAction(action -> {
+            try {
+                AnchorPane addUserPane = FXMLLoader.load(getClass().getResource("/fxml/addUserPane.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(addUserPane);
+                stage.setScene(scene);
+                stage.setResizable(false);
+                stage.show();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

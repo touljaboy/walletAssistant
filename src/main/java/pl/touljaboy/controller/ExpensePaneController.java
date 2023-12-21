@@ -7,12 +7,16 @@ import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import pl.touljaboy.app.ExpenseAppManager;
+import pl.touljaboy.model.Environment;
+import pl.touljaboy.model.ExpenseType;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 //TODO graphs should dynamically change based on user chocie (pie chart, line graph). Alternatively, just display both.
 public class ExpensePaneController {
@@ -63,10 +67,13 @@ public class ExpensePaneController {
 
     @FXML
     private NumberAxis valueAxis;
+    //Items regarding adding an expense
 
     public void initialize() {
         configureButtons();
     }
+
+
 
     private void configureButtons() {
         //TODO to refactor
@@ -84,5 +91,21 @@ public class ExpensePaneController {
                 throw new RuntimeException(e);
             }
         });
+
+        newEntryButton.setOnAction(action -> {
+            AnchorPane addExpensePane;
+            try {
+                addExpensePane = FXMLLoader.load(getClass().getResource("/fxml/addExpensePane.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(addExpensePane);
+                stage.setScene(scene);
+                stage.setResizable(false);
+                stage.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+
     }
 }
