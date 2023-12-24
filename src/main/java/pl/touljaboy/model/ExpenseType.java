@@ -18,7 +18,7 @@ public record ExpenseType(String description, int id) implements CSVConvertible 
 
     @Override
     public String toString() {
-        return "KATEGORIA: " + description;
+        return description;
     }
 
     public static ExpenseType createFromInt(int choice) throws NoSuchOptionException {

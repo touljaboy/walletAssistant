@@ -10,8 +10,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import pl.touljaboy.model.Environment;
+import pl.touljaboy.model.ExpenseType;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ExpenseTypePaneController {
 
@@ -31,7 +34,7 @@ public class ExpenseTypePaneController {
     private MenuItem dirMenuItem;
 
     @FXML
-    private ListView<?> expenseTypesList;
+    private ListView<ExpenseType> expenseTypesList;
 
     @FXML
     private MenuItem logOutMenuItem;
@@ -49,6 +52,11 @@ public class ExpenseTypePaneController {
 
     public void initialize() {
         configureButtons();
+        configureListView();
+    }
+
+    private void configureListView() {
+        expenseTypesList.getItems().addAll(Environment.expenseTypes);
     }
 
     private void configureButtons() {
@@ -68,6 +76,8 @@ public class ExpenseTypePaneController {
                 throw new RuntimeException(e);
             }
         });
+
+        //TODO okay, listen man, there is a lot of code repetition now that you are implementing GUI, fix fix fix
         newCategoryButton.setOnAction(action ->  {
             AnchorPane addExpenseTypePane;
             try {
@@ -80,6 +90,25 @@ public class ExpenseTypePaneController {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        });
+        deleteCategoryButton.setOnAction(action -> {
+            List<ExpenseType> expenseTypesToBeRemoved =
+                    expenseTypesList.getSelectionModel().getSelectedItems().stream().toList();
+
+            //TODO when deleting smth need to add a confirmation button
+            //Remove expenses with the given category from the arraylist
+            for (int i = 0; i < expenseTypesToBeRemoved.size(); i++) {
+                for (int j = 0; j < Environment.expenses.get(Environment.CURRENT_USER).size(); j++) {
+                    if(Environment.expenses.get(Environment.CURRENT_USER).get(j).getExpenseType().equals
+                            (expenseTypesToBeRemoved.get(i))) {
+                        Environment.expenses.get(Environment.CURRENT_USER)
+                                .remove(Environment.expenses.get(Environment.CURRENT_USER).get(j));
+                    }
+                }
+            }
+
+            Environment.expenseTypes.removeAll(expenseTypesToBeRemoved);
+            expenseTypesList.getItems().removeAll(expenseTypesToBeRemoved);
         });
     }
 }

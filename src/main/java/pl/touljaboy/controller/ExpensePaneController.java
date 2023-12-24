@@ -107,5 +107,19 @@ public class ExpensePaneController {
 
         });
 
+        deleteEntryButton.setOnAction(action -> {
+            AnchorPane deleteExpensePane;
+            try {
+                deleteExpensePane = FXMLLoader.load(getClass().getResource("/fxml/deleteExpensePane.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(deleteExpensePane);
+                stage.setScene(scene);
+                stage.setResizable(false);
+                stage.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
     }
 }

@@ -59,7 +59,7 @@ public class Expense implements CSVConvertible, Comparable<Expense> {
     @Override
     public String toString() {
         String format = String.format
-                ("|wartość: %10.2f | kategoria: %-15s | data: %s|", value, expenseType.description(), date);
+                ("|wartość: %10.2f | kategoria: %-15s | data: %10s|", value, expenseType.description(), date);
         return format;
     }
 

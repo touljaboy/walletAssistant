@@ -53,7 +53,7 @@ public class User implements CSVConvertible{
 
     @Override
     public String toString() {
-        return "Nazwa użytkownika: " + username;
+        return username;
     }
 
     @Override

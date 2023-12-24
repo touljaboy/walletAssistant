@@ -13,7 +13,7 @@ import java.util.Objects;
 //For now, I plan to test some basic features using the terminal before I move on to making it a GUI app.
 public class ExpenseManagerApp extends Application {
     //Application version field
-    public static final String APP_VERSION = "\nExpensesManager - 0.6 GUI branch Early Beta";
+    public static final String APP_VERSION = "\nExpensesManager - 0.7 GUI branch Early Beta";
     public static void main(String[] args) {
         ExpenseAppManager expenseAppManager = new ExpenseAppManager();
         expenseAppManager.initialize();
