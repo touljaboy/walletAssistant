@@ -5,35 +5,41 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
-public class SettingsPaneController {
+public class CalendarPaneController {
+    LocalDate today;
+    LocalDate focus;
 
     @FXML
-    private Button applyButton;
+    private FlowPane calendarFlowPane;
 
+    @FXML
+    private Button nextButton;
+
+    @FXML
+    private Button previousButton;
+    @FXML
+    private Label monthLabel;
+    @FXML
+    private Label yearLabel;
     @FXML
     private Button backButton;
 
-    @FXML
-    private ChoiceBox<?> currencyChoiceBox;
-
-    @FXML
-    private ChoiceBox<?> languageChoiceBox;
-
-
     public void initialize() {
+        focus = LocalDate.now();
+        today = LocalDate.now();
         configureButtons();
+        configureCalendar();
     }
 
     private void configureButtons() {
-        //TODO to refactor
         backButton.setOnAction(action -> {
             try {
                 BorderPane mainPane = FXMLLoader.load(getClass().getResource("/fxml/mainPane.fxml"));
@@ -49,5 +55,17 @@ public class SettingsPaneController {
             }
         });
     }
-}
 
+    private void configureCalendar() {
+        yearLabel.setText(String.valueOf(focus.getYear()));
+        monthLabel.setText(String.valueOf(focus.getMonth()));
+
+        double calendarWidth = calendarFlowPane.getWidth();
+        double calendarHeight = calendarFlowPane.getHeight();
+        double strokeWidth = 1;
+        double horizontalSpacing = calendarFlowPane.getHgap();
+        double verticalSpacing = calendarFlowPane.getVgap();
+    }
+
+
+}

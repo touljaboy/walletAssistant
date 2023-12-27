@@ -138,5 +138,21 @@ public class MainPaneController {
                 throw new RuntimeException(e);
             }
         });
+
+        calendarButton.setOnAction(action -> {
+            AnchorPane calendarPane;
+            try {
+                calendarPane = FXMLLoader.load(getClass().getResource("/fxml/calendarPane.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(calendarPane);
+                stage.setScene(scene);
+                stage.setTitle("Calendar");
+                stage.setResizable(false);
+                stage.show();
+                ((Node)(action.getSource())).getScene().getWindow().hide();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }
