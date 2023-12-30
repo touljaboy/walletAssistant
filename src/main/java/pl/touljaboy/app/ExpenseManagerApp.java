@@ -13,7 +13,7 @@ import java.util.Objects;
 //For now, I plan to test some basic features using the terminal before I move on to making it a GUI app.
 public class ExpenseManagerApp extends Application {
     //Application version field
-    public static final String APP_VERSION = "\nExpensesManager - 0.9 GUI branch Early Beta";
+    public static final String APP_VERSION = "\nExpensesManager - 0.10 GUI branch Early Beta";
     public static void main(String[] args) {
         ExpenseAppManager expenseAppManager = new ExpenseAppManager();
         expenseAppManager.initialize();
@@ -28,6 +28,8 @@ public class ExpenseManagerApp extends Application {
         //TODO well, GUI in normal beta should be written in HTML - just for flex
         //TODO settings window kinda sux, make it simpler
         //TODO menu settings on top are useless, delete the pane
+        //TODO refactor the current code, delete all code from alpha etc
+        //TODO add more interesting things such as spending predictions etc
     }
 
     @Override

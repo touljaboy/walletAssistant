@@ -6,19 +6,27 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import pl.touljaboy.model.Environment;
+import pl.touljaboy.model.Expense;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 public class CalendarPaneController {
     LocalDate today;
     LocalDate focus;
 
     @FXML
-    private FlowPane calendarFlowPane;
+    private ListView<Expense> expensesListView;
 
     @FXML
     private Button nextButton;
@@ -37,6 +45,17 @@ public class CalendarPaneController {
         today = LocalDate.now();
         configureButtons();
         configureCalendar();
+        configureListView();
+    }
+
+    private void configureListView() {
+        expensesListView.getItems().clear();
+        List<Expense> currMonthExp = Environment.expenses.get(Environment.CURRENT_USER).stream().filter(expense -> {
+            int value = expense.getDate().getMonth().getValue();
+            int focusValue = focus.getMonth().getValue();
+            return value == focusValue;
+        }).toList();
+        expensesListView.getItems().addAll(currMonthExp);
     }
 
     private void configureButtons() {
@@ -54,18 +73,27 @@ public class CalendarPaneController {
                 throw new RuntimeException(e);
             }
         });
+
+        previousButton.setOnAction(action -> {
+            focus = focus.minusMonths(1);
+            yearLabel.setText(String.valueOf(focus.getYear()));
+            monthLabel.setText(String.valueOf(focus.getMonth()));
+            configureListView();
+        });
+        nextButton.setOnAction(action -> {
+            focus = focus.plusMonths(1);
+            yearLabel.setText(String.valueOf(focus.getYear()));
+            monthLabel.setText(String.valueOf(focus.getMonth()));
+            configureListView();
+        });
     }
 
     private void configureCalendar() {
         yearLabel.setText(String.valueOf(focus.getYear()));
         monthLabel.setText(String.valueOf(focus.getMonth()));
 
-        double calendarWidth = calendarFlowPane.getWidth();
-        double calendarHeight = calendarFlowPane.getHeight();
-        double strokeWidth = 1;
-        double horizontalSpacing = calendarFlowPane.getHgap();
-        double verticalSpacing = calendarFlowPane.getVgap();
     }
+
 
 
 }

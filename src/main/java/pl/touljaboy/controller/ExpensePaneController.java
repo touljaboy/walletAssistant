@@ -163,5 +163,19 @@ public class ExpensePaneController {
             }
         });
 
+        calculateAverageButton.setOnAction(actionEvent -> {
+            AnchorPane calculateAvg;
+            try {
+                calculateAvg = FXMLLoader.load(getClass().getResource("/fxml/calculateAveragePane.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(calculateAvg);
+                stage.setScene(scene);
+                stage.setResizable(false);
+                stage.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
     }
 }
