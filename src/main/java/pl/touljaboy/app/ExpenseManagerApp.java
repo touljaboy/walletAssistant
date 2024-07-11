@@ -10,6 +10,9 @@ import pl.touljaboy.model.Environment;
 
 import java.util.Objects;
 
+import pl.touljaboy.io.ConsolePrinter;
+import pl.touljaboy.model.User;
+
 //For now, I plan to test some basic features using the terminal before I move on to making it a GUI app.
 public class ExpenseManagerApp extends Application {
     //Application version field
